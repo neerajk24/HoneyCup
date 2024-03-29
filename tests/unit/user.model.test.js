@@ -3,8 +3,15 @@ import mongoose from 'mongoose';
 import { use, expect as _expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import bcrypt from 'bcryptjs';
-import User from '../../src/models/user.js';
+import User from '../../src/models/user.model.js';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import { use, expect as _expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import bcrypt from 'bcryptjs';
+import User from '../../src/models/user.model.js';
+import dotenv from 'dotenv';
+import UserController from '../../src/controllers/user.controller.js';
 
 
 use(chaiAsPromised);
@@ -12,7 +19,7 @@ const expect = _expect;
 
 dotenv.config();
 
-describe('User Model', () => {
+describe('User Controller', () => {
     before(async () => {
         // Connect to the database using the value from .env file
         await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -33,7 +40,7 @@ describe('User Model', () => {
             }
         });
 
-        const savedUser = await user.save();
+        const savedUser = await UserController.saveUser(user);
 
         expect(savedUser).to.exist;
         expect(savedUser.username).to.equal('testuser');
@@ -50,18 +57,18 @@ describe('User Model', () => {
             }
         });
 
-        await user.save();
+        await UserController.saveUser(user);
 
         const user2 = new User({
             username: 'testuser',
             password: 'testpassword2',
             location: {
                 type: 'Point',
-           coordinates: [2, 2]
+                coordinates: [2, 2]
             }
         });
 
-        await expect(user2.save()).to.be.rejected;
+        await expect(UserController.saveUser(user2)).to.be.rejected;
     });
 
     it('should check if password is correct', async () => {
@@ -74,8 +81,8 @@ describe('User Model', () => {
             }
         });
 
-        const savedUser = await user.save();
-        const isPasswordCorrect = await savedUser.correctPassword('testpassword');
+        const savedUser = await UserController.saveUser(user);
+        const isPasswordCorrect = await UserController.checkPassword(savedUser, 'testpassword');
 
         expect(isPasswordCorrect).to.be.true;
     });

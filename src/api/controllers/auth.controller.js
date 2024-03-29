@@ -1,6 +1,6 @@
 // src/api/controllers/authController.js
 
-const authService = require('../../services/authService');
+const authService = require('../../services/auth.service');
 
 exports.login = async (req, res, next) => {
     try {

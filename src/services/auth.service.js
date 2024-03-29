@@ -1,7 +1,7 @@
 // src/services/authService.js
 
 import { sign } from 'jsonwebtoken';
-import { findOne } from '../models/user';
+import { findOne } from '../models/user.model';
 
 export async function login(email, password) {
     const user = await findOne({ email }).select('+password');
