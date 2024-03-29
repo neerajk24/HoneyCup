@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Making Casual Dating Safe",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "mocha --recursive --exit",
+    "test": "mocha --experimental-modules 'tests/**/*.test.js'",
     "start": "node app.js"
   },
   "author": "",
@@ -20,7 +21,8 @@
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "chai": "^5.1.0",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
     "mocha": "^10.4.0"
   }
 }

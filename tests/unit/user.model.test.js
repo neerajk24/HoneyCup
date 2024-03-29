@@ -1,18 +1,21 @@
 
-const mongoose = require('mongoose');
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const bcrypt = require('bcryptjs');
-const User = require('../models/user');
+import mongoose from 'mongoose';
+import { use, expect as _expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import bcrypt from 'bcryptjs';
+import User from '../../src/models/user.js';
+import dotenv from 'dotenv';
 
 
-chai.use(chaiAsPromised);
-const expect = chai.expect;
+use(chaiAsPromised);
+const expect = _expect;
+
+dotenv.config();
 
 describe('User Model', () => {
     before(async () => {
-        // Connect to the database (replace with your string)
-        await mongoose.connect('mongodb://localhost/testDatabase', { useNewUrlParser: true, useUnifiedTopology: true });
+        // Connect to the database using the value from .env file
+        await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     });
 
     afterEach(async () => {
