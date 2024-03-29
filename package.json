@@ -1,0 +1,18 @@
+{
+  "name": "honeycup",
+  "version": "1.0.0",
+  "description": "Making Casual Dating Safe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/storage-blob": "^12.17.0",
+    "firebase-admin": "^12.0.0",
+    "mongoose": "^8.2.4",
+    "redis": "^4.6.13",
+    "socket.io": "^4.7.5"
+  }
+}
