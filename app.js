@@ -1,14 +1,20 @@
 // app.js or server.js
-
+require('dotenv').config();
 const express = require('express');
+const connectDatabase = require('./src/config/database');
 const authRoutes = require('./src/api/routes/authRoutes');
-// ... other imports
-
+const cors = require('cors'); // Import the cors package
 const app = express();
+// Connect to MongoDB
+connectDatabase();
 
 // Middleware setup
 app.use(express.json());
+app.use(cors()); // Use the cors middleware
 // ... other middleware
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Routes setup
 app.use('/api', authRoutes);

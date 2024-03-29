@@ -5,6 +5,7 @@ const chaiAsPromised = require('chai-as-promised');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
+
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
@@ -53,7 +54,7 @@ describe('User Model', () => {
             password: 'testpassword2',
             location: {
                 type: 'Point',
-                coordinates: [2, 2]
+           coordinates: [2, 2]
             }
         });
 
