@@ -17,3 +17,28 @@ export async function createUser(userData) {
   await user.save();
   return user;
 }
+
+// Function to authenticate a user - just an example, adjust as needed
+export async function authenticateUser(email, password) {
+  // Logic to authenticate a user
+}
+
+
+// Function to update user profile
+export async function updateUserProfile(userId, profileData) {
+  if (!profileData.age || !profileData.sex) {
+    throw new Error('Completing the profile requires age and sex.');
+  }
+  
+  // Assuming you have logic to fetch and update the user based on userId
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  
+  // Update user with profileData
+  Object.assign(user, profileData);
+  await user.save();
+
+  return user;
+}

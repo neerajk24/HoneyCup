@@ -1,5 +1,6 @@
 
 
+
 import mongoose from 'mongoose';
 import { use, expect as _expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -15,7 +16,7 @@ const expect = _expect;
 
 dotenv.config();
 
-describe('User Controller', () => {
+describe('User Model', () => {
     before(async () => {
         // Connect to the database using the value from .env file
         await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -36,7 +37,7 @@ describe('User Controller', () => {
             }
         });
 
-        const savedUser = await UserController.saveUser(user);
+        const savedUser = await user.save();
 
         expect(savedUser).to.exist;
         expect(savedUser.username).to.equal('testuser');
@@ -53,7 +54,7 @@ describe('User Controller', () => {
             }
         });
 
-        await UserController.saveUser(user);
+        await user.save();
 
         const user2 = new User({
             username: 'testuser',
@@ -64,7 +65,7 @@ describe('User Controller', () => {
             }
         });
 
-        await expect(UserController.saveUser(user2)).to.be.rejected;
+        await expect(user2.save()).to.be.rejected;
     });
 
     it('should check if password is correct', async () => {
@@ -77,9 +78,9 @@ describe('User Controller', () => {
             }
         });
 
-        const savedUser = await UserController.saveUser(user);
-        const isPasswordCorrect = await UserController.checkPassword(savedUser, 'testpassword');
-
+        const savedUser = await user.save();
+       // const isPasswordCorrect = await bcrypt.compare('testpassword', savedUser.password); // Compare hashed password
+        const isPasswordCorrect = await savedUser.correctPassword('testpassword');
         expect(isPasswordCorrect).to.be.true;
     });
 });

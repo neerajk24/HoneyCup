@@ -2,6 +2,7 @@
 import { Schema, model } from 'mongoose';
 import { allowedLikes, allowedDislikes } from '../constants/likesdislikeconstants.js';
 import { arrayLimit, arrayLimitLikesDislikes } from '../utils/validators.js';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new Schema({
   username: { type: String, required: true, unique: true },
@@ -15,8 +16,20 @@ const userSchema = new Schema({
   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
   isActive: { type: Boolean, default: true },
   password: { type: String, required: true },
-  age: { type: Number, required: true },
-  sex: { type: String, enum: ['male', 'female', 'other'], required: true }
+  age: { type: Number, required: false },
+  sex: { type: String, enum: ['male', 'female', 'other'], required: false }
 });
+
+userSchema.pre('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
+
+// Defining the correctPassword method
+userSchema.methods.correctPassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 export default model('User', userSchema);
