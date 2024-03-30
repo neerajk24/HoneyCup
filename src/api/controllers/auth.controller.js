@@ -1,23 +1,22 @@
-// src/api/controllers/authController.js
+// src/api/controllers/auth.controller.js
+import * as authService from '../../services/auth.service.js';
 
-const authService = require('../../services/auth.service');
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await authService.authenticateUser(email, password);
+    // Generate token, handle session, etc.
+    res.json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
-exports.login = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
-        const { user, token } = await authService.login(email, password);
+export const googleAuth = async (req, res) => {
+  // Google auth logic might largely be handled by Passport's middleware,
+  // so this might just handle redirect or response after successful authentication
+};
 
-        res.status(200).json({
-            status: 'success',
-            token,
-            data: {
-                user,
-            },
-        });
-    } catch (error) {
-        res.status(401).json({
-            status: 'fail',
-            message: error.message,
-        });
-    }
+export const appleAuth = async (req, res) => {
+  // Similar to Google auth, handle response after Apple authentication
 };

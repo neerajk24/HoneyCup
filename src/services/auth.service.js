@@ -1,21 +1,15 @@
-// src/services/authService.js
+// src/services/auth.service.js
+import bcrypt from 'bcryptjs';
+import User from '../models/user.model.js';
 
-import { sign } from 'jsonwebtoken';
-import { findOne } from '../models/user.model';
-
-export async function login(email, password) {
-    const user = await findOne({ email }).select('+password');
-
-    if (!user || !(await user.correctPassword(password, user.password))) {
-        throw new Error('Incorrect email or password');
-    }
-
-    const token = sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-
-    // Remove the password from the output
-    user.password = undefined;
-
-    return { user, token };
-}
+export const authenticateUser = async (email, password) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error('Password is incorrect');
+  }
+  return user; // You might want to generate and return a JWT token instead
+};
