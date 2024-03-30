@@ -41,7 +41,7 @@ describe('Google OAuth', () => {
         const processUser = async (profile) => {
             const user = await User.findOneAndUpdate(
                 { googleId: profile.id },
-                { name: profile.displayName, email: profile.emails[0].value },
+                { username: profile.displayName, email: profile.emails[0].value },
                 { new: true, upsert: true }
             );
             return user;
@@ -57,7 +57,7 @@ describe('Google OAuth', () => {
         const user = await processUser(profile);
 
         expect(user).to.exist;
-        expect(user.name).to.equal('Test User');
+        expect(user.username).to.equal('Test User');
         expect(user.email).to.equal('testuser@example.com');
         // Further assertions as needed
     });

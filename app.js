@@ -16,6 +16,7 @@ const app = express();
 
 // Connect to MongoDB
 connectDatabase();
+ 
 
 // Middleware setup
 app.use(json());

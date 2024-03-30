@@ -1,9 +1,13 @@
 import { connect } from 'mongoose';
+
 console.log('Connecting to MongoDB at:', process.env.MONGODB_URI);
 
 const connectDatabase = async () => {
+    // Determine the connection URI based on the environment
+    const dbUri = process.env.MONGODB_URI;
+
   try {
-    await connect(process.env.MONGODB_URI, {
+    await connect(dbUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
