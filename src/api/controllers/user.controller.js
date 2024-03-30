@@ -1,5 +1,5 @@
 import express from 'express';
-import * as userService from '../services/user.service.js';
+import * as userService from '../../services/user.service.js';
 
 const router = express.Router();
 // PUT /api/users/profile - Update the current user's profile

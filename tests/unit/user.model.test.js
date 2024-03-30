@@ -1,17 +1,13 @@
 
+
 import mongoose from 'mongoose';
 import { use, expect as _expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import bcrypt from 'bcryptjs';
 import User from '../../src/models/user.model.js';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
-import { use, expect as _expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-import bcrypt from 'bcryptjs';
-import User from '../../src/models/user.model.js';
-import dotenv from 'dotenv';
-import UserController from '../../src/controllers/user.controller.js';
+import UserController from '../../src/api/controllers/user.controller.js';
+
 
 
 use(chaiAsPromised);

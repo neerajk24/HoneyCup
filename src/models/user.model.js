@@ -1,6 +1,6 @@
 // src/models/user.model.js
 import { Schema, model } from 'mongoose';
-import { allowedLikes, allowedDislikes } from '../constants/userConstants.js';
+import { allowedLikes, allowedDislikes } from '../constants/likesdislikeconstants.js';
 import { arrayLimit, arrayLimitLikesDislikes } from '../utils/validators.js';
 
 const userSchema = new Schema({
