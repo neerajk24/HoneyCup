@@ -11,6 +11,7 @@ const router = express.Router();
  *   post:
  *     summary: Log in a user
  *     description: Authenticates a user and returns a token.
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -41,6 +42,7 @@ router.post('/login', authController.loginUser);
  *   get:
  *     summary: Google authentication
  *     description: Redirects to Google's OAuth 2.0 authentication.
+ *     tags: [Auth]
  *     responses:
  *       302:
  *         description: Redirected to Google for authentication.
@@ -53,6 +55,7 @@ router.get('/auth/google', passport.authenticate('google', { scope: ['profile'] 
  *   get:
  *     summary: Google OAuth callback
  *     description: Handles the callback from Google OAuth 2.0 authentication.
+ *     tags: [Auth]
  *     responses:
  *       200:
  *         description: Google authentication successful.
@@ -67,6 +70,7 @@ router.get('/auth/google/callback', passport.authenticate('google'), authControl
  *   get:
  *     summary: Apple authentication
  *     description: Redirects to Apple's OAuth 2.0 authentication.
+ *     tags: [Auth]
  *     responses:
  *       302:
  *         description: Redirected to Apple for authentication.
@@ -79,6 +83,7 @@ router.get('/auth/apple', passport.authenticate('apple'));
  *   get:
  *     summary: Apple OAuth callback
  *     description: Handles the callback from Apple OAuth 2.0 authentication.
+ *     tags: [Auth]
  *     responses:
  *       200:
  *         description: Apple authentication successful.
