@@ -42,7 +42,7 @@ const swaggerOptions = {
       },
     },
     // Note: Adjust the path to where your route definitions are located
-    apis: ['./routes/*.js'],
+    apis: ['./src/api/routes/*.js'],
   };
   
   const swaggerDocs = swaggerJsDoc(swaggerOptions);

@@ -58,8 +58,6 @@ describe('User Model', () => {
     });
 
     it('should not save a user with a taken username', async () => {
-
-       
         const user2 = new User({
             username: 'testuser',
             password: 'testpassword2',
@@ -73,10 +71,11 @@ describe('User Model', () => {
             await user2.save();
             throw new Error('Expected an error but did not get one');
         } catch (error) {
-            expect(error).to.be.instanceOf(mongoose.Error.MongoServerError);
+            // Check for the duplicate key error code directly
             expect(error.code).to.equal(11000); // E11000 is the error code for duplicate key error
         }
     });
+    
     /**
      * Tests if the password is checked correctly.
      */
