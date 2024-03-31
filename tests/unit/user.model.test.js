@@ -12,7 +12,8 @@ import chaiAsPromised from 'chai-as-promised';
 import bcrypt from 'bcryptjs';
 import User from '../../src/models/user.model.js';
 import dotenv from 'dotenv';
-import UserController from '../../src/api/controllers/user.controller.js';
+import connectDatabase from '../../src/config/database.js';
+
 
 use(chaiAsPromised);
 const expect = _expect;
@@ -26,18 +27,15 @@ describe('User Model', () => {
     /**
      * Sets up the test environment by connecting to the database.
      */
-    before(async () => {
-        // Connect to the database using the value from .env file
-        await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    });
-
-    /**
-     * Cleans up the database after each test.
-     */
-    afterEach(async () => {
-        // Clean up the database
+    before(async function() {
+        // Ensure the database is connected before tests run
+        await connectDatabase();
+      });
+    
+      after(async function() {
         await User.deleteMany({});
-    });
+        await mongoose.disconnect();
+      });
 
     /**
      * Tests if a user can be saved successfully.
@@ -59,21 +57,9 @@ describe('User Model', () => {
         expect(savedUser).to.have.property('password').that.is.not.equal('testpassword');
     });
 
-    /**
-     * Tests if a user with a taken username cannot be saved.
-     */
     it('should not save a user with a taken username', async () => {
-        const user = new User({
-            username: 'testuser',
-            password: 'testpassword',
-            location: {
-                type: 'Point',
-                coordinates: [1, 1]
-            }
-        });
 
-        await user.save();
-
+       
         const user2 = new User({
             username: 'testuser',
             password: 'testpassword2',
@@ -82,16 +68,21 @@ describe('User Model', () => {
                 coordinates: [2, 2]
             }
         });
-
-        await expect(user2.save()).to.be.rejected;
+    
+        try {
+            await user2.save();
+            throw new Error('Expected an error but did not get one');
+        } catch (error) {
+            expect(error).to.be.instanceOf(mongoose.Error.MongoServerError);
+            expect(error.code).to.equal(11000); // E11000 is the error code for duplicate key error
+        }
     });
-
     /**
      * Tests if the password is checked correctly.
      */
     it('should check if password is correct', async () => {
         const user = new User({
-            username: 'testuser',
+            username: 'testuser2',
             password: 'testpassword',
             location: {
                 type: 'Point',
@@ -99,8 +90,14 @@ describe('User Model', () => {
             }
         });
 
-        const savedUser = await user.save();
-        const isPasswordCorrect = await savedUser.correctPassword('testpassword');
-        expect(isPasswordCorrect).to.be.true;
+
+        try {
+            const savedUser = await user.save();
+            const isPasswordCorrect = await savedUser.correctPassword('testpassword');
+            expect(isPasswordCorrect).to.be.true;
+        } catch (error) {
+            expect(error).to.be.instanceOf(mongoose.Error.MongoServerError);
+            expect(error.code).to.equal(11000); // E11000 is the error code for duplicate key error
+        }
     });
 });

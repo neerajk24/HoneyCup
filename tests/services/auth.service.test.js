@@ -15,6 +15,7 @@ describe('AuthService', () => {
   });
 
   after(async function() {
+    await User.deleteMany({});
     await mongoose.disconnect();
   });
     /**
