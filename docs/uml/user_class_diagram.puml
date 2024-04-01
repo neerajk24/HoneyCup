@@ -1,0 +1,31 @@
+@startuml
+class User {
+  -username: String
+  -email: String
+  -password: String
+  -profilePhoto: String
+  -bio: String
+  -location: GeoJson
+  -privacySettings: PrivacySettings
+  -ratings: Rating[]
+  +hashPassword(): void
+  +validatePassword(password: String): Boolean
+  +updateProfile(profileData: ProfileData): User
+}
+
+class PrivacySettings {
+  -shareLocation: Boolean
+  -shareBio: Boolean
+}
+
+class Rating {
+  -score: Int
+  -ratedBy: User
+}
+
+User "1" -- "*" Rating
+User "1" -- "1" PrivacySettings
+
+note right of User : Hashes password before saving to the database.
+note left of Rating : Stores user ratings for profiles.
+@enduml
