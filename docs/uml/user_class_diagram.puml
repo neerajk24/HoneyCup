@@ -1,4 +1,4 @@
-@startuml
+@startuml user_class_diagram
 class User {
   -username: String
   -email: String
