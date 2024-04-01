@@ -1,10 +1,13 @@
-// src/api/controllers/media.controller.js
+import express from 'express';
 import multer from 'multer';
-import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { uploadFileToBlob, getFileById, deleteFileById } from '../../services/blob.service.js'; // Adjust path as necessary
 
-// Assuming you have a service for handling blob storage or similar
-import blobService from '../../services/blobService.js';
+// Convert the URL of the current module to a file path
+const __filename = fileURLToPath(import.meta.url);
+// Get the directory name of the current module
+const __dirname = path.dirname(__filename);
 
 // Set up multer for file uploads
 const uploadPath = path.join(__dirname, '..', '..', 'uploads');
@@ -16,9 +19,9 @@ export const uploadFile = async (req, res, next) => {
             return res.status(400).send({ message: 'No file uploaded.' });
         }
 
-        // Example: Upload the file to blob storage and get the URL
         const containerName = 'media'; // Adjust as needed
-        const blobUrl = await blobService.uploadFileToBlob(req.file, containerName);
+        //const blobUrl = await uploadFileToBlob(req.file, containerName);
+        const blobUrl = "http://example.com/mock-url-for-uploaded-file";
 
         res.status(201).send({ message: 'File uploaded successfully.', url: blobUrl });
     } catch (error) {
@@ -29,14 +32,12 @@ export const uploadFile = async (req, res, next) => {
 export const fetchMedia = async (req, res, next) => {
     try {
         const { id } = req.params;
-        // Example: Fetch the file URL or path from your storage based on the ID
-        const fileDetails = await blobService.getFileById(id);
+        const fileDetails = await getFileById(id);
 
         if (!fileDetails) {
             return res.status(404).send({ message: 'File not found.' });
         }
 
-        // Example response with file URL
         res.status(200).send({ url: fileDetails.url });
     } catch (error) {
         next(error);
@@ -46,8 +47,7 @@ export const fetchMedia = async (req, res, next) => {
 export const deleteMedia = async (req, res, next) => {
     try {
         const { id } = req.params;
-        // Example: Delete the file from your storage based on the ID
-        const deletionResult = await blobService.deleteFileById(id);
+        const deletionResult = await deleteFileById(id);
 
         if (!deletionResult) {
             return res.status(404).send({ message: 'File not found or already deleted.' });
@@ -59,5 +59,5 @@ export const deleteMedia = async (req, res, next) => {
     }
 };
 
-// You might need to export the multer upload if it's used outside this module
+// Assuming you want to use this multer instance for routes related to media uploads
 export { upload };

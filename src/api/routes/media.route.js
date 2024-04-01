@@ -8,7 +8,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /media/upload:
+ *  /api/media/upload:
  *   post:
  *     summary: Upload a media file
  *     description: Allows users to upload media files.
@@ -34,7 +34,7 @@ router.post('/upload', upload.single('file'), mediaController.uploadFile);
 
 /**
  * @swagger
- * /media/{id}:
+ *  /api/media/{id}:
  *   get:
  *     summary: Fetch a media file
  *     description: Fetches a media file by its ID.
@@ -61,7 +61,7 @@ router.get('/:id', mediaController.fetchMedia);
 
 /**
  * @swagger
- * /media/{id}:
+ *  /api/media/{id}:
  *   delete:
  *     summary: Delete a media file
  *     description: Deletes a media file by its ID.

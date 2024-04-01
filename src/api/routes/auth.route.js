@@ -7,7 +7,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /login:
+ * /api/auth/login:
  *   post:
  *     summary: Log in a user
  *     description: Authenticates a user and returns a token.
@@ -38,7 +38,7 @@ router.post('/login', authController.loginUser);
 
 /**
  * @swagger
- * /auth/google:
+ * /api/auth/google:
  *   get:
  *     summary: Google authentication
  *     description: Redirects to Google's OAuth 2.0 authentication.
@@ -51,7 +51,7 @@ router.get('/auth/google', passport.authenticate('google', { scope: ['profile'] 
 
 /**
  * @swagger
- * /auth/google/callback:
+ * /api/auth/google/callback:
  *   get:
  *     summary: Google OAuth callback
  *     description: Handles the callback from Google OAuth 2.0 authentication.
@@ -66,7 +66,7 @@ router.get('/auth/google/callback', passport.authenticate('google'), authControl
 
 /**
  * @swagger
- * /auth/apple:
+ * /api/auth/apple:
  *   get:
  *     summary: Apple authentication
  *     description: Redirects to Apple's OAuth 2.0 authentication.
@@ -79,7 +79,7 @@ router.get('/auth/apple', passport.authenticate('apple'));
 
 /**
  * @swagger
- * /auth/apple/callback:
+ * /api/auth/apple/callback:
  *   get:
  *     summary: Apple OAuth callback
  *     description: Handles the callback from Apple OAuth 2.0 authentication.

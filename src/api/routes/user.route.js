@@ -1,4 +1,3 @@
-// src/api/routes/user.route.js
 import express from 'express';
 import * as userController from '../controllers/user.controller.js';
 
@@ -6,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /profile:
+ * /api/users/profile:
  *   put:
  *     summary: Update the current user's profile
  *     tags: [User]
@@ -33,7 +32,7 @@ router.put('/profile', userController.updateUserProfile);
 
 /**
  * @swagger
- * /:
+ * /api/users/:
  *   post:
  *     summary: Create a new user
  *     tags: [User]
@@ -60,7 +59,7 @@ router.post('/', userController.createUser);
 
 /**
  * @swagger
- * /login:
+ * /api/users/login:
  *   post:
  *     summary: Authenticate a user
  *     tags: [User]
@@ -85,7 +84,7 @@ router.post('/login', userController.loginUser);
 
 /**
  * @swagger
- * /profile:
+ * /api/users/profile:
  *   get:
  *     summary: Get the current user's profile
  *     tags: [User]

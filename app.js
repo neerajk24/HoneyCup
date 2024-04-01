@@ -12,6 +12,7 @@ import express, { json } from 'express';
 import connectDatabase from './src/config/database.js'; // Update the import statement to include the file extension
 import authRoutes from './src/api/routes/auth.route.js'; // Update the import statement to include the file extension
 import userRoutes from './src/api/routes/user.route.js'; // Update the import statement to include the file extension
+import mediaRoutes from './src/api/routes/media.route.js'; // Update the import statement to include the file extension
 
 import cors from 'cors'; // Import the cors package
 import swaggerJsDoc from 'swagger-jsdoc';
@@ -27,8 +28,9 @@ connectDatabase();
 app.use(express.json()); // Middleware to parse JSON bodies
 app.use(json());
 app.use(cors()); 
-app.use('/api', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/media', mediaRoutes);
 
 // ... other middleware
 
