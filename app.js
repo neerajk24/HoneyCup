@@ -24,10 +24,11 @@ connectDatabase();
  
 
 // Middleware setup
+app.use(express.json()); // Middleware to parse JSON bodies
 app.use(json());
 app.use(cors()); 
 app.use('/api', authRoutes);
-app.use('/api', userRoutes);
+app.use('/api/users', userRoutes);
 
 // ... other middleware
 
