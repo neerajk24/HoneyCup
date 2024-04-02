@@ -1,7 +1,12 @@
 import express from 'express';
-import * as userController from '../controllers/user.controller.js';
+import { verifyToken } from '../../middleware/auth.middleware.js';
+import { getUserProfile, updateUserProfile } from '../controllers/user.controller.js';
 
 const router = express.Router();
+
+// Example protected route
+router.get('/profile', verifyToken, getUserProfile);
+router.put('/profile', verifyToken, updateUserProfile);
 
 /**
  * @swagger
