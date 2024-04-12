@@ -69,5 +69,6 @@ export const getUserProfile = async (req, res) => {
     res.status(200).json(userProfile);
   } catch (error) {
     res.status(404).json({ message: error.message });
+    console.log(req.user.id);
   }
 };
