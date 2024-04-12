@@ -18,9 +18,19 @@ export async function createUser(userData) {
   return user;
 }
 
-// Function to authenticate a user - just an example, adjust as needed
+// Function to authenticate a user 
 export async function authenticateUser(email, password) {
-  // Logic to authenticate a user
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error('Authentication failed. User not found.');
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error('Authentication failed. Invalid password.');
+  }
+
+  return user;
 }
 
 
