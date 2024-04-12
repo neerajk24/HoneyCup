@@ -3,7 +3,8 @@ import express from 'express';
 import * as mediaController from '../controllers/media.controller.js';
 import multer from 'multer';
 
-const upload = multer({ dest: 'uploads/' });
+const uploadPath = "../../uploaded";
+const upload = multer({ dest: uploadPath });
 const router = express.Router();
 
 /**
@@ -82,3 +83,4 @@ router.get('/:id', mediaController.fetchMedia);
 router.delete('/:id', mediaController.deleteMedia);
 
 export default router;
+export { upload };
