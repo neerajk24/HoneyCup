@@ -4,7 +4,7 @@ console.log('Connecting to MongoDB at:', process.env.MONGODB_URI);
 
 const connectDatabase = async () => {
     // Determine the connection URI based on the environment
-    const dbUri = process.env.MONGODB_URI;
+    const dbUri = process.env.MONGODB_URI;   // mongodb://localhost:27017/honeyCup
 
   try {
     await connect(dbUri, {

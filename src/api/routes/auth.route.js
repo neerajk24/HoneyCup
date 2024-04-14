@@ -66,6 +66,34 @@ router.get('/auth/google/callback', passport.authenticate('google'), authControl
 
 /**
  * @swagger
+ * /api/auth/facebook:
+ *   get:
+ *     summary: Facebook authentication
+ *     description: Redirects to Facebook's OAuth 2.0 authentication.
+ *     tags: [Auth]
+ *     responses:
+ *       302:
+ *         description: Redirected to Facebook for authentication.
+ */
+router.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+
+/**
+ * @swagger
+ * /api/auth/facebook/callback:
+ *   get:
+ *     summary: Facebook OAuth callback
+ *     description: Handles the callback from Facebook OAuth 2.0 authentication.
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Facebook authentication successful.
+ *       401:
+ *         description: Facebook authentication failed.
+ */
+router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }), authController.handleFacebookAuthResponse);
+
+/**
+ * @swagger
  * /api/auth/apple:
  *   get:
  *     summary: Apple authentication
