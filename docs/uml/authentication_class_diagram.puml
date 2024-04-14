@@ -1,0 +1,17 @@
+@startuml authentication_class_diagram
+class AuthenticationService {
+  +authenticate(email: String, password: String): User
+  +generateToken(user: User): Token
+  +decodeToken(token: String): UserClaims
+}
+
+class Token {
+  -tokenString: String
+  -expires: DateTime
+}
+
+AuthenticationService "1" -- "1" Token
+
+note right of AuthenticationService : Handles all authentication logic.
+note bottom of Token : Represents a JWT token with expiry.
+@enduml

@@ -1,0 +1,26 @@
+@startuml media_class_diagram
+class MediaService {
+  +uploadMedia(file: File): Media
+  +deleteMedia(mediaId: String): Boolean
+  +getMedia(mediaId: String): Media
+}
+
+class Media {
+  -id: String
+  -url: String
+  -contentType: String
+  -uploadedAt: DateTime
+  -uploadedBy: User
+}
+
+class File {
+  -name: String
+  -data: Byte[]
+}
+
+MediaService "1" -- "1..*" Media
+Media "1" -- "1" User : "Uploaded by\n<<foreign>>"
+
+note right of MediaService : Manages media files and storage.
+note left of Media : Represents a media file in the system.
+@enduml

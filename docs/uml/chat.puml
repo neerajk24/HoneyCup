@@ -1,0 +1,52 @@
+@startuml ChatSystem
+
+package "Chat Service" {
+    class ChatManager {
+        +createChatSession()
+        +deleteChatSession()
+        +sendMessage()
+        +receiveMessage()
+    }
+
+    class ChatSession {
+        -participants: User[]
+        -messages: Message[]
+        +addParticipant(User)
+        +removeParticipant(User)
+        +addMessage(Message)
+        +getMessages(): Message[]
+    }
+
+    class Message {
+        -content: String
+        -timestamp: DateTime
+        -sender: User
+        +getContent(): String
+        +getTimestamp(): DateTime
+    }
+}
+
+package "User Management" {
+    class User {
+        -username: String
+        -email: String
+        +getUsername(): String
+        +getEmail(): String
+    }
+}
+
+package "Authentication" {
+    class AuthService {
+        +login(username: String, password: String): User
+        +logout(user: User)
+        +register(user: User)
+        +verifyCredentials(username: String, password: String): Boolean
+    }
+}
+
+ChatManager --> ChatSession
+ChatSession "1" *-- "0..*" Message : contains >
+ChatSession "1" *-- "2..*" User : participants >
+AuthService ..> User : verifies >
+
+@enduml
