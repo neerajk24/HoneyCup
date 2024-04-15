@@ -2,7 +2,7 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
-import firebaseApp from "../firebase.js"; // Import the app instance
+import firebaseApp from "../config/firebase.js"; // Import the app instance
 
 // Module-level variable to store initialized Firebase instance
 let auth;
