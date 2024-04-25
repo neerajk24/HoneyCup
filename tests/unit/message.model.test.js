@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Unit tests for the Message Model.
  * @module message.model.test
@@ -52,6 +51,8 @@ describe('Message Model', () => {
         expect(savedMessage.receiver).to.eql(receiverId);
         expect(savedMessage.content).to.equal(messageData.content);
         expect(savedMessage.timestamp).to.be.a('Date');
+        expect(savedMessage.isImage).to.be.false; // New field check
+        expect(savedMessage.seenBy).to.be.an('array').that.is.empty; // New field check
     });
 
     /**
@@ -188,4 +189,83 @@ describe('Message Model', () => {
         expect(error.errors.content.kind).to.equal('required');
     });
 
+    /**
+     * 8. Tests if the isImage field defaults to false when a new message is created.
+     */
+    it('should default the isImage field to false when creating a new message', async () => {
+        const senderId = new mongoose.Types.ObjectId();
+        const receiverId = new mongoose.Types.ObjectId();
+        const messageData = {
+            sender: senderId,
+            receiver: receiverId,
+            content: 'Test message content'
+        };
+
+        const message = new Message(messageData);
+        await message.save();
+
+        expect(message.isImage).to.be.false;
+    });
+
+    /**
+     * 9. Tests if the seenBy field is initially empty when a new message is created.
+     */
+    it('should have an empty seenBy field when creating a new message', async () => {
+        const senderId = new mongoose.Types.ObjectId();
+        const receiverId = new mongoose.Types.ObjectId();
+        const messageData = {
+            sender: senderId,
+            receiver: receiverId,
+            content: 'Test message content'
+        };
+
+        const message = new Message(messageData);
+        await message.save();
+
+        expect(message.seenBy).to.be.an('array').that.is.empty;
+    });
+
+    /**
+     * 10. Tests if the isImage field is set to true when creating a message with an image.
+     */
+    it('should set the isImage field to true when creating a message with an image', async () => {
+        const senderId = new mongoose.Types.ObjectId();
+        const receiverId = new mongoose.Types.ObjectId();
+        const messageData = {
+            sender: senderId,
+            receiver: receiverId,
+            content: 'Image file path here',
+            isImage: true // Assuming this is how you indicate an image message
+        };
+
+        const message = new Message(messageData);
+        await message.save();
+
+        expect(message.isImage).to.be.true;
+    });
+
+    /**
+     * 11. Tests if the seenBy field is updated correctly when a user views the message.
+     */
+    it('should update the seenBy field when a user views the message', async () => {
+        const senderId = new mongoose.Types.ObjectId();
+        const receiverId = new mongoose.Types.ObjectId();
+        const viewerId = new mongoose.Types.ObjectId(); // User viewing the message
+        const messageData = {
+            sender: senderId,
+            receiver: receiverId,
+            content: 'Test message content'
+        };
+
+        const message = new Message(messageData);
+        await message.save();
+
+        // Simulate the user viewing the message
+        message.seenBy.push(viewerId);
+        await message.save();
+
+        const updatedMessage = await Message.findById(message._id);
+
+        expect(updatedMessage.seenBy).to.include(viewerId);
+    });
 });
