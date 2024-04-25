@@ -7,7 +7,7 @@ const { Schema } = mongoose;
 const messageSchema = new Schema({
   sender: {
     type: Schema.Types.ObjectId,
-    ref: 'User', // Assuming you have a user model named 'User'
+    ref: 'User',
     required: true
   },
   receiver: {
@@ -22,7 +22,15 @@ const messageSchema = new Schema({
   timestamp: {
     type: Date,
     default: Date.now
-  }
+  },
+  isImage: {
+    type: Boolean,
+    default: false
+  },
+  seenBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 });
 
 const Message = mongoose.model('Message', messageSchema);
