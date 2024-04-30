@@ -19,18 +19,18 @@
 # Chat idea on which Rajat Intern working on :-
 
 ## chatting_with:
-###Each user model will have a field named chatting_with, which will contain an array of objects representing the users with whom the current user is chatting.
-###Each object in the array will contain the userID and a boolean value indicating whether the chat with that user should be kept or deleted after 24 hours.
-###For example, if User A is chatting with User B and both have agreed to keep the chat, the chatting_with field for User A will contain an object like { userID: 'B', keepChat: true }.
-###If User A is also chatting with User C but has not agreed to keep the chat, the chatting_with field for User A will contain another object like { userID: 'C', keepChat: false }.
-###Similarly, User B's chatting_with field will contain an object representing User A with the agreed state of keeping the chat.
-##Default State:
-###By default, when a new chat is initiated, the chatting_with field for both users will contain objects with the keepChat value set to false.
-###This means that by default, the chat will be deleted after 24 hours unless both users explicitly agree to keep it.
-##Chat Persistence:
-###To ensure that the chat remains after 24 hours, both users must have objects in their respective chatting_with arrays with each other's user IDs and the keepChat value set to true.
-###If either user does not have the other user's ID in their chatting_with array or if the keepChat value is set to false, the chat will be deleted after 24 hours.
-###Overall, this approach provides a structured way to track the users with whom each user is chatting and their agreed-upon decision regarding whether to keep the chat or delete it after 24 hours. It ensures that both users must mutually agree to keep the chat for it to persist beyond the default 24-hour period.
+ - Each user model will have a field named chatting_with, which will contain an array of objects representing the users with whom the current user is chatting.
+ - Each object in the array will contain the userID and a boolean value indicating whether the chat with that user should be kept or deleted after 24 hours.
+ - For example, if User A is chatting with User B and both have agreed to keep the chat, the chatting_with field for User A will contain an object like { userID: 'B', keepChat: true }.
+ - If User A is also chatting with User C but has not agreed to keep the chat, the chatting_with field for User A will contain another object like { userID: 'C', keepChat: false }.
+ - Similarly, User B's chatting_with field will contain an object representing User A with the agreed state of keeping the chat.
+## Default State:
+ - By default, when a new chat is initiated, the chatting_with field for both users will contain objects with the keepChat value set to false.
+ - This means that by default, the chat will be deleted after 24 hours unless both users explicitly agree to keep it.
+## Chat Persistence:
+ - To ensure that the chat remains after 24 hours, both users must have objects in their respective chatting_with arrays with each other's user IDs and the keepChat value set to true.
+ - If either user does not have the other user's ID in their chatting_with array or if the keepChat value is set to false, the chat will be deleted after 24 hours.
+ - Overall, this approach provides a structured way to track the users with whom each user is chatting and their agreed-upon decision regarding whether to keep the chat or delete it after 24 hours. It ensures that both users must mutually agree to keep the chat for it to persist beyond the default 24-hour period.
 
 ## Chat 
 
