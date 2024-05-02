@@ -1,4 +1,5 @@
 // src/models/message.model.js
+// Defines the schema for messages exchanged between users
 
 import mongoose from 'mongoose';
 
