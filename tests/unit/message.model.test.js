@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import { use, expect as _expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Message from '../../src/models/message.model.js';
-import User from '../../src/models/user.model.js'; // Import User model if required
+import User from '../../src/models/user.model.js'; 
 import connectDatabase from '../../src/config/database.js';
 
 use(chaiAsPromised);
@@ -244,9 +244,7 @@ describe('Message Model', () => {
         expect(message.isImage).to.be.true;
     });
 
-    /**
-     * 11. Tests if the seenBy field is updated correctly when a user views the message.
-     */
+    // 11. Tests if the seenBy field is updated correctly when a user views the message
     it('should update the seenBy field when a user views the message', async () => {
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
