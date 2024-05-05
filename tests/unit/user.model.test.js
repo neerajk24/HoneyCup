@@ -252,5 +252,112 @@ describe('User Model', () => {
         // Try to save the second user with the same username
         await expect(user2.save()).to.be.rejectedWith(mongoose.Error.MongoServerError);
     });
+
+    /**
+     * 10. Tests if the chattingWith array is initialized correctly.
+     */
+    it('should initialize the chattingWith array correctly', async () => {
+        const userData = {
+            username: 'testuser_chattingWith',
+            password: 'testpassword_chattingWith',
+            location: {
+                type: 'Point',
+                coordinates: [1, 1]
+            }
+        };
+
+        const user = new User(userData);
+        expect(user.chattingWith).to.exist;
+        expect(user.chattingWith).to.be.an('array').that.is.empty; // Expect the array to be initialized and empty
+    });
+
+    /**
+     * 11. Tests if the updateChatPreference method correctly updates the continueChat field.
+     */
+    it('should correctly update the continueChat field using updateChatPreference method', async () => {
+        const userData = {
+            username: 'testuser_updateChatPreference',
+            password: 'testpassword_updateChatPreference',
+            location: {
+                type: 'Point',
+                coordinates: [1, 1]
+            }
+        };
+
+        const user = new User(userData);
+        const otherUserId = new mongoose.Types.ObjectId(); // Dummy other user ID
+        user.chattingWith.push({ user: otherUserId, continueChat: false });
+
+        // Call updateChatPreference method with continueChat set to true
+        await user.updateChatPreference(otherUserId, true);
+
+        // Fetch the updated chattingWith user
+        const updatedChattingWithUser = user.chattingWith.find(u => u.user.equals(otherUserId));
+        expect(updatedChattingWithUser).to.exist;
+        expect(updatedChattingWithUser.continueChat).to.be.true; // Expect continueChat to be true after update
+    });
+
+    /**
+     * 12. Tests if the password is hashed correctly.
+     */
+    it('should hash the password when saving a new user', async () => {
+        const userData = {
+            username: 'testuser_passwordHash',
+            password: 'testpassword_passwordHash',
+            location: {
+                type: 'Point',
+                coordinates: [1, 1]
+            }
+        };
+
+        const user = new User(userData);
+        await user.save();
+
+        expect(user.password).to.exist;
+        expect(user.password).to.not.equal(userData.password); // Expect password to be hashed
+    });
+
+    /**
+     * 13. Tests if the correctPassword method verifies the password correctly.
+     */
+    it('should verify the password correctly using the correctPassword method', async () => {
+        const userData = {
+            username: 'testuser_correctPassword',
+            password: 'testpassword_correctPassword',
+            location: {
+                type: 'Point',
+                coordinates: [1, 1]
+            }
+        };
+
+        const user = new User(userData);
+        await user.save();
+
+        const isCorrectPassword = await user.correctPassword(userData.password);
+        expect(isCorrectPassword).to.be.true; // Expect correct password verification
+    });
     
+    /**
+     * 14. Tests if the OAuth identifiers are stored correctly and are unique.
+     */
+    it('should store and ensure uniqueness of OAuth identifiers', async () => {
+        const userData = {
+            username: 'testuser_oauth',
+            googleId: 'testgoogleid_oauth',
+            facebookId: 'testfacebookid_oauth',
+            appleId: 'testappleid_oauth',
+            password: 'testpassword_oauth',
+            location: {
+                type: 'Point',
+                coordinates: [1, 1]
+            }
+        };
+
+        const user = new User(userData);
+        await user.save();
+
+        expect(user.googleId).to.equal(userData.googleId);
+        expect(user.facebookId).to.equal(userData.facebookId);
+        expect(user.appleId).to.equal(userData.appleId);
+    });
 });
