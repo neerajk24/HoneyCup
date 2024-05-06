@@ -1,14 +1,11 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import User from './src/models/user.model.js'; // Adjust the path as per your directory structure
+import User from './src/models/user.model.js';
 
 const seedUsers = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect('mongodb://localhost:27017/honeyCup', {
-      //useNewUrlParser: true,
-      //useUnifiedTopology: true,
-    });
+    await mongoose.connect('mongodb://localhost:27017/honeyCup');
 
     // Define longitude and latitude values
     const longitude1 = -74.006;
@@ -45,7 +42,7 @@ const seedUsers = async () => {
         galleryPhotos: ['gallery_photo_url_21', 'gallery_photo_url_22'],
         bio: 'User 2 bio',
         likes: ['like21', 'like22'],
-        dislikes: ['dislike21',],
+        dislikes: ['dislike21'],
         location: { type: 'Point', coordinates: [longitude2, latitude2] },
         privacySettings: { shareLocation: true, shareBio: false },
         isActive: true,
@@ -59,7 +56,18 @@ const seedUsers = async () => {
     ];
 
     // Insert the user data into the database
-    await User.insertMany(userData);
+    const users = await User.insertMany(userData);
+
+    // Update chattingWith field to create bidirectional references
+    for (let i = 0; i < users.length; i++) {
+      const currentUser = users[i];
+      const otherUsers = users.filter(user => !user._id.equals(currentUser._id));
+      currentUser.chattingWith = otherUsers.map(user => ({
+        user: user._id,
+        continueChat: false,
+      }));
+      await currentUser.save();
+    }
 
     console.log('Database seeded successfully');
   } catch (error) {
