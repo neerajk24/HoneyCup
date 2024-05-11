@@ -1,4 +1,6 @@
 import { connect } from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
 console.log('Connecting to MongoDB at:', process.env.MONGODB_URI);
 
