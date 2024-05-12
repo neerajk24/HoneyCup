@@ -2,7 +2,7 @@
 // Defines the API endpoints for sending, deleting, editing, and retrieving messages.
 
 import express from 'express';
-import { sendMessage, deleteMessage, editMessage, getMessage } from '../controllers/chat.controller.js';
+import { sendMessage, editMessage, getMessage } from '../controllers/chat.controller.js'; // deleteMessage, 
 
 const router = express.Router();
 
