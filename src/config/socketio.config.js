@@ -1,17 +1,18 @@
 // src/config/socketio.config.js
-// The socketio.config.js file initializes a Socket.IO server with middleware 
-// for authentication and authorization, handles various socket events like message 
-// reception and user disconnection, and ensures secure CORS configuration to prevent common security vulnerabilities.
 
+
+import dotenv from 'dotenv';
+dotenv.config();
 import http from 'http';
-import socketIo from 'socket.io';
-import app from '../../app.js';
+import { Server as SocketIOServer } from 'socket.io';
+import createApp from '../../app.js';
 import { authenticateSocket, authorizeSocketActions } from '../api/middlewares/chat.middleware.js'; // Import middleware
 import { sendMessage } from '../services/chat.service.js'; // Import chat services
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Create HTTP server
+const app = createApp();
 const server = http.createServer(app);
 
 // Initialize Socket.io with the server
