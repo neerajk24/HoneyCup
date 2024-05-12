@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middlewares/auth.middleware.js';
-import { getUserProfile, updateUserProfile } from '../controllers/user.controller.js';
+import { getUserProfile, updateUserProfile, createUser, loginUser } from '../controllers/user.controller.js'; // Import userController functions
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ router.put('/profile', verifyToken, updateUserProfile);
  *       400:
  *         description: Error updating user profile.
  */
-router.put('/profile', userController.updateUserProfile);
+router.put('/profile', updateUserProfile);
 
 /**
  * @swagger
@@ -60,7 +60,7 @@ router.put('/profile', userController.updateUserProfile);
  *       400:
  *         description: Error creating user.
  */
-router.post('/', userController.createUser);
+router.post('/', createUser);
 
 /**
  * @swagger
@@ -85,7 +85,7 @@ router.post('/', userController.createUser);
  *       401:
  *         description: Authentication failed.
  */
-router.post('/login', userController.loginUser);
+router.post('/login', loginUser);
 
 /**
  * @swagger
@@ -99,6 +99,6 @@ router.post('/login', userController.loginUser);
  *       404:
  *         description: User not found.
  */
-router.get('/profile', userController.getUserProfile);
+router.get('/profile', getUserProfile);
 
 export default router;
