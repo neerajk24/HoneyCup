@@ -1,5 +1,5 @@
 // src/services/chat.service.js
-// 
+ 
 
 import Message from '../models/message.model.js';
 import User from '../models/user.model.js';
@@ -9,10 +9,9 @@ import User from '../models/user.model.js';
  * @param {string} senderId - The ID of the user sending the message.
  * @param {string} recipientId - The ID of the user receiving the message.
  * @param {string} content - The content of the message.
- * @param {string} messageType - The type of message (e.g., text, image).
  * @returns {Promise<object>} The created message object.
  */
-export const sendMessage = async (senderId, recipientId, content, messageType) => {
+export const sendMessage = async (senderId, recipientId, content) => {
     try {
         // Check if sender and recipient exist
         const sender = await User.findById(senderId);
@@ -23,7 +22,7 @@ export const sendMessage = async (senderId, recipientId, content, messageType) =
         }
 
         // Create and save message to database
-        const message = new Message({ sender: senderId, recipient: recipientId, content, messageType });
+        const message = new Message({ sender: senderId, receiver: recipientId, content });
         await message.save();
 
         return message;
