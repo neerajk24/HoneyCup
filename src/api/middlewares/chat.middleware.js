@@ -3,7 +3,7 @@
 // ensuring secure access and permissions during real-time communication.
 
 import jwt from 'jsonwebtoken';
-import User from '../models/user.model.js';
+import User from '../../models/user.model.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
