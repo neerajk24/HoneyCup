@@ -22,7 +22,7 @@ import swaggerUi from 'swagger-ui-express';
 
 // Import Socket.IO configuration
 import http from 'http';
-import socketIo from 'socket.io';
+import { Server as SocketIOServer } from 'socket.io';
 import socketioConfig from './src/config/socketio.config.js'; // Import Socket.IO configuration
 
 const app = express();
@@ -63,7 +63,7 @@ const server = http.createServer(app); // Create HTTP server
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Initialize Socket.IO with the server
-const io = socketIo(server);
+const io = SocketIOServer(server);
 socketioConfig(io); // Initialize Socket.IO configuration
 
 export default app;
