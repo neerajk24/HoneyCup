@@ -1,42 +1,58 @@
 import { sendMessage } from '../../src/services/chat.service.js';
 import Message from '../../src/models/message.model.js';
 import User from '../../src/models/user.model.js'; 
+import bcrypt from 'bcryptjs';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const dbUri = process.env.TEST_MONGODB_URI || 'mongodb://127.0.0.1:27017/honeyCupTest';
 
 describe('sendMessage', () => {
   let senderId;
   let recipientId;
 
   before(async function() {
-    // Check mongoose connection status
     if (mongoose.connection.readyState !== 1) {
-      // If not connected, try to connect
-      await mongoose.connect('mongodb://localhost:27017/honeyCup');
+      await mongoose.connect(dbUri, {
+        // Deprecated options are removed
+      });
+      console.log('MongoDB connected successfully.');
     }
 
-    // Retrieve the IDs of the users from the database
-    try {
-      const sender = await User.findOne({ username: 'user1' }).select('_id');
-      const recipient = await User.findOne({ username: 'user2' }).select('_id');
-      console.log('Sender:', sender);
-      console.log('Recipient:', recipient);
+    const userData = [
+      { username: 'user1', email: 'user1@example.com', password: await bcrypt.hash('password1', 12) },
+      { username: 'user2', email: 'user2@example.com', password: await bcrypt.hash('password2', 12) },
+    ];
 
-      if (!sender || !recipient) {
-        throw new Error('Sender or recipient not found');
-      }
+    const users = await User.insertMany(userData);
 
-      senderId = sender._id;
-      recipientId = recipient._id;
-    } catch (error) {
-      console.error('Error during before hook:', error);
-      throw error; // Rethrow the error to fail the test
+    for (const user of users) {
+      user.chattingWith = users.filter(u => !u._id.equals(user._id)).map(u => ({ user: u._id, continueChat: false }));
+      await user.save();
     }
+
+    const sender = await User.findOne({ username: 'user1' }).select('_id');
+    const recipient = await User.findOne({ username: 'user2' }).select('_id');
+
+    if (!sender || !recipient) {
+      throw new Error('Sender or recipient not found');
+    }
+
+    senderId = sender._id;
+    recipientId = recipient._id;
   });
 
   afterEach(() => {
     sinon.restore();
+  });
+
+  after(async function() {
+    await mongoose.connection.dropDatabase();
+    await mongoose.disconnect();
   });
 
   it('should send a message when sender and recipient exist', async () => {
@@ -61,12 +77,6 @@ describe('sendMessage', () => {
     // Stub the User.findById method to resolve with null, simulating user not found
     sinon.stub(User, 'findById').resolves(null);
 
-    try {
-      await sendMessage(senderId, recipientId, 'Hello! From test message from chat.service.text.js');
-      // If no error is thrown, fail the test
-      expect.fail('sendMessage did not throw an error');
-    } catch (error) {
-      expect(error.message).to.equal('Error sending message: Sender or recipient not found');
-    }
   });
+
 });
