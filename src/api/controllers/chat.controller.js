@@ -1,5 +1,4 @@
-// Success code alone
-// src/api/controllers/chat.controller.js - sinon
+// src/api/controllers/chat.controller.js - sinon working, full done
 
 export function createChatController({ nlpService, Message, User }) {
     return {
