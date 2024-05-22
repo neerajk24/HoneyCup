@@ -1,34 +1,36 @@
+// tests/integration/controllers/chat.controller.test.js 
+
 import { describe, it, before, afterEach } from 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-//import proxyquire from 'proxyquire-universal';
-//import proxyquire from 'proxyquire';
-import proxyquireify from 'proxyquireify';
-const proxyquire = proxyquireify(require);
+import { createChatController } from '../../../src/api/controllers/chat.controller.js';
 
 describe('Chat Controller', () => {
-    let req, res, sandbox, sendMessage;
+    let req, res, sandbox, sendMessage, deleteMessage, editMessage, getMessage, nlpService, Message, User;
 
     before(() => {
         sandbox = sinon.createSandbox();
+
         // Stub dependencies
-        const stubs = {
-            '../../../src/services/nlp.service.js': {
-                analyzeMessage: sandbox.stub().resolves({ isInappropriate: false, isBadImage: false })
-            },
-            '../../../src/models/message.model.js': {
-                './message.model.js': {  // Corrected path for message model
-                    create: sandbox.stub().resolves({ _id: 'message_id' })
-                }
-            },
-            '../../../src/models/user.model.js': {
-                './user.model.js': {  // Corrected path for user model
-                    findById: sandbox.stub().resolves({ continueChat: true })
-                }
-            }
+        nlpService = {
+            analyzeMessage: sandbox.stub().resolves({ isInappropriate: false, isBadImage: false })
         };
-        // Import the module under test with stubbed dependencies
-        sendMessage = proxyquire('../../../src/api/controllers/chat.controller.js', stubs).sendMessage;
+        Message = {
+            create: sandbox.stub().resolves({ _id: 'message_id' }),
+            findByIdAndDelete: sandbox.stub().resolves({}),
+            findByIdAndUpdate: sandbox.stub().resolves({ content: 'Updated message content' }),
+            findById: sandbox.stub().resolves({ content: 'Test message content' })
+        };
+        User = {
+            findById: sandbox.stub().resolves({ continueChat: true })
+        };
+
+        // Create controller instance with stubbed dependencies
+        const chatController = createChatController({ nlpService, Message, User });
+        sendMessage = chatController.sendMessage;
+        deleteMessage = chatController.deleteMessage;
+        editMessage = chatController.editMessage;
+        getMessage = chatController.getMessage;
     });
 
     beforeEach(() => {
@@ -39,6 +41,9 @@ describe('Chat Controller', () => {
                 content: 'Test message content',
                 messageType: 'text',
                 isImage: false
+            },
+            params: {
+                messageId: 'message_id'
             }
         };
 
@@ -63,7 +68,7 @@ describe('Chat Controller', () => {
 
         it('should handle inappropriate content', async () => {
             // Stub the NLP service to return inappropriate content
-            sandbox.stub(nlpService, 'analyzeMessage').resolves({ isInappropriate: true, isBadImage: false });
+            nlpService.analyzeMessage.resolves({ isInappropriate: true, isBadImage: false });
 
             await sendMessage(req, res);
 
@@ -74,7 +79,7 @@ describe('Chat Controller', () => {
 
         it('should handle bad image', async () => {
             // Stub the NLP service to return bad image
-            sandbox.stub(nlpService, 'analyzeMessage').resolves({ isInappropriate: false, isBadImage: true });
+            nlpService.analyzeMessage.resolves({ isInappropriate: false, isBadImage: true });
 
             await sendMessage(req, res);
 
@@ -85,7 +90,7 @@ describe('Chat Controller', () => {
 
         it('should handle errors', async () => {
             // Stub the NLP service
-            sandbox.stub(nlpService, 'analyzeMessage').throws(new Error('NLP service error'));
+            nlpService.analyzeMessage.throws(new Error('NLP service error'));
 
             await sendMessage(req, res);
 
@@ -94,99 +99,96 @@ describe('Chat Controller', () => {
             expect(res.json.args[0][0]).to.deep.equal({ error: 'NLP service error' });
         });
     });
+
+    describe('deleteMessage', () => {
+        it('should delete a message successfully', async () => {
+            await deleteMessage(req, res);
+
+            expect(res.status.calledWith(200)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0]).to.deep.equal({ message: 'Message deleted successfully' });
+        });
+
+        it('should handle message not found', async () => {
+            Message.findByIdAndDelete.resolves(null);
+
+            await deleteMessage(req, res);
+
+            expect(res.status.calledWith(404)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0]).to.deep.equal({ error: 'Message not found' });
+        });
+
+        it('should handle errors', async () => {
+            Message.findByIdAndDelete.throws(new Error('Database error'));
+
+            await deleteMessage(req, res);
+
+            expect(res.status.calledWith(500)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0]).to.deep.equal({ error: 'Database error' });
+        });
+    });
+
+    describe('editMessage', () => {
+        it('should edit a message successfully', async () => {
+            req.body.content = 'Updated message content';
+
+            await editMessage(req, res);
+
+            expect(res.status.calledWith(200)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0].content).to.equal('Updated message content');
+        });
+
+        it('should handle message not found', async () => {
+            Message.findByIdAndUpdate.resolves(null);
+
+            await editMessage(req, res);
+
+            expect(res.status.calledWith(404)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0]).to.deep.equal({ error: 'Message not found' });
+        });
+
+        it('should handle errors', async () => {
+            Message.findByIdAndUpdate.throws(new Error('Database error'));
+
+            await editMessage(req, res);
+
+            expect(res.status.calledWith(500)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0]).to.deep.equal({ error: 'Database error' });
+        });
+    });
+
+    describe('getMessage', () => {
+        it('should get a message successfully', async () => {
+            await getMessage(req, res);
+
+            expect(res.status.calledWith(200)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0].content).to.equal('Test message content');
+        });
+
+        it('should handle message not found', async () => {
+            Message.findById.resolves(null);
+
+            await getMessage(req, res);
+
+            expect(res.status.calledWith(404)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0]).to.deep.equal({ error: 'Message not found' });
+        });
+
+        it('should handle errors', async () => {
+            Message.findById.throws(new Error('Database error'));
+
+            await getMessage(req, res);
+
+            expect(res.status.calledWith(500)).to.be.true;
+            expect(res.json.calledOnce).to.be.true;
+            expect(res.json.args[0][0]).to.deep.equal({ error: 'Database error' });
+        });
+    });
 });
-
-
-
-// import { describe, it, before, after } from 'mocha';
-// import { expect } from 'chai';
-// import sinon from 'sinon';
-// import { sendMessage } from '../../../src/api/controllers/chat.controller.js';
-// import Message from '../../../src/models/message.model.js';
-// import User from '../../../src/models/user.model.js';
-// import * as nlpService from '../../../src/services/nlp.service.js';
-
-// describe('Chat Controller', () => {
-//     let req, res, sandbox;
-
-//     before(() => {
-//         sandbox = sinon.createSandbox();
-//     });
-
-//     beforeEach(() => {
-//         req = {
-//             body: {
-//                 sender: 'sender_id',
-//                 recipient: 'recipient_id',
-//                 content: 'Test message content',
-//                 messageType: 'text',
-//                 isImage: false
-//             }
-//         };
-
-//         res = {
-//             status: sandbox.stub().returnsThis(),
-//             json: sandbox.stub()
-//         };
-//     });
-
-//     afterEach(() => {
-//         sandbox.restore();
-//     });
-
-//     describe('sendMessage', () => {
-//         it('should send a message successfully', async () => {
-//             // Stub the NLP service
-//             const analyzeMessageStub = sandbox.stub(nlpService, 'analyzeMessage').resolves({ isInappropriate: false, isBadImage: false });
-
-//             // Stub user find operations
-//             sandbox.stub(User, 'findById').resolves({ continueChat: true });
-
-//             // Stub message create operation
-//             sandbox.stub(Message, 'create').resolves({ _id: 'message_id' });
-
-//             await sendMessage(req, res);
-
-//             expect(res.status.calledWith(201)).to.be.true;
-//             expect(res.json.calledOnce).to.be.true;
-//             expect(Message.create.calledOnce).to.be.true;
-
-//             const messageData = res.json.args[0][0];
-//             expect(messageData).to.have.property('message');
-//             expect(messageData.message._id).to.equal('message_id');
-//         });
-
-//         it('should handle inappropriate content', async () => {
-//             // Stub the NLP service to return inappropriate content
-//             sandbox.stub(nlpService, 'analyzeMessage').resolves({ isInappropriate: true, isBadImage: false });
-
-//             await sendMessage(req, res);
-
-//             expect(res.status.calledWith(400)).to.be.true;
-//             expect(res.json.calledOnce).to.be.true;
-//             expect(res.json.args[0][0]).to.deep.equal({ error: 'Inappropriate content detected' });
-//         });
-
-//         it('should handle bad image', async () => {
-//             // Stub the NLP service to return bad image
-//             sandbox.stub(nlpService, 'analyzeMessage').resolves({ isInappropriate: false, isBadImage: true });
-
-//             await sendMessage(req, res);
-
-//             expect(res.status.calledWith(400)).to.be.true;
-//             expect(res.json.calledOnce).to.be.true;
-//             expect(res.json.args[0][0]).to.deep.equal({ error: 'Inappropriate content detected' });
-//         });
-
-//         it('should handle errors', async () => {
-//             // Stub the NLP service
-//             sandbox.stub(nlpService, 'analyzeMessage').throws(new Error('NLP service error'));
-
-//             await sendMessage(req, res);
-
-//             expect(res.status.calledWith(500)).to.be.true;
-//             expect(res.json.calledOnce).to.be.true;
-//             expect(res.json.args[0][0]).to.deep.equal({ error: 'NLP service error' });
-//         });
-//     });
-// });
