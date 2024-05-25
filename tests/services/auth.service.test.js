@@ -14,8 +14,12 @@ describe('AuthService', () => {
     await connectDatabase();
   });
 
-  after(async function() {
+  beforeEach(async function() {
+    // Clear the User collection before each test
     await User.deleteMany({});
+  });
+
+  after(async function() {
     await mongoose.disconnect();
   });
 
@@ -28,14 +32,14 @@ describe('AuthService', () => {
         email: 'user@example.com',
         password: 'password'
       });
-      
+
       // Now attempt to authenticate
       const result = await authService.authenticateUser('user@example.com', 'password');
       expect(result).to.exist;
       expect(result.username).to.equal('testUser');
     });
   });
-  
+
   // 2. Testing: should throw an error for invalid password
   describe('AuthService - Invalid Password', () => {
     it('should throw an error for invalid password', async () => {
@@ -43,7 +47,7 @@ describe('AuthService', () => {
       const newUser = await User.create({
         username: 'testUser2',
         email: 'user2@example.com',
-        password: 'password'
+        password: bcrypt.hashSync('password', 8)
       });
 
       // Attempt to authenticate with incorrect password
@@ -72,5 +76,4 @@ describe('AuthService', () => {
       }
     });
   });
-
 });
