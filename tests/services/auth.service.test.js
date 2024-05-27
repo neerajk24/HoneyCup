@@ -1,3 +1,4 @@
+// tests/services/auth.service.test.js
 import { expect } from 'chai';
 import * as authService from '../../src/services/auth.service.js';
 import bcrypt from 'bcryptjs';
