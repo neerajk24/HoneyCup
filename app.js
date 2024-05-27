@@ -2,14 +2,14 @@
  * This is the main file for the server application.
  * It sets up the server, connects to the database, and defines routes and middleware.
  */
-// app.js or server.js
+// app.js
 
 import express from 'express';
 import connectDatabase from './src/config/database.js';
 import authRoutes from './src/api/routes/auth.route.js';
 import userRoutes from './src/api/routes/user.route.js';
 import mediaRoutes from './src/api/routes/media.route.js';
-import chatRoutes from './src/api/routes/chat.route.js'; 
+import chatRoutes from './src/api/routes/chat.route.js';
 import passport from 'passport';
 import './src/config/passport-setup.js';
 import cors from 'cors';
@@ -25,14 +25,13 @@ const createApp = () => {
     // Middleware setup
     app.use(express.json());
     app.use(cors());
+    app.use(passport.initialize());
 
     // Define routes
     app.use('/api/auth', authRoutes);
     app.use('/api/users', userRoutes);
     app.use('/api/media', mediaRoutes);
-    app.use('/api/chat', chatRoutes); 
-
-    app.use(passport.initialize());
+    app.use('/api/chat', chatRoutes);
 
     // Swagger setup
     const swaggerOptions = {
@@ -53,4 +52,12 @@ const createApp = () => {
     return app;
 };
 
-export default createApp;
+const app = createApp();
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+export default app;
