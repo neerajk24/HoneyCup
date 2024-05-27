@@ -1,6 +1,4 @@
 // src/api/middlewares/chat.middleware.js
-// functions for authenticating and authorizing socket connections, 
-// ensuring secure access and permissions during real-time communication.
 
 import jwt from 'jsonwebtoken';
 import User from '../../models/user.model.js';
