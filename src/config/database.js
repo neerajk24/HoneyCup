@@ -1,3 +1,4 @@
+// HoneyCup/src/config/database.js
 import { connect } from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
