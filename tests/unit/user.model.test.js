@@ -1,6 +1,3 @@
-
-
-
 /**
  * @fileOverview Unit tests for the User Model.
  * @module user.model.test
