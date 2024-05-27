@@ -1,16 +1,24 @@
 // src/api/routes/auth.routes.js
 import express from 'express';
 import passport from 'passport';
-import * as authController from '../controllers/auth.controller.js';
+import { createAuthController } from '../controllers/auth.controller.js'; // Import the function to create the auth controller
 
 const router = express.Router();
 
+const authController = createAuthController(); // Create the auth controller
+
 /**
  * @swagger
- * /api/auth/login:
+ * tags:
+ *   name: Auth
+ *   description: Authentication related endpoints
+ */
+
+/**
+ * @swagger
+ * /auth/login:
  *   post:
- *     summary: Log in a user
- *     description: Authenticates a user and returns a token.
+ *     summary: Login a user
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -18,106 +26,95 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
  *             properties:
  *               email:
  *                 type: string
- *                 description: The user's email.
  *               password:
  *                 type: string
- *                 description: The user's password.
  *     responses:
  *       200:
- *         description: Authentication successful.
- *       400:
- *         description: Invalid credentials provided.
+ *         description: Successfully logged in
+ *       401:
+ *         description: Unauthorized
  */
 router.post('/login', authController.loginUser);
 
 /**
  * @swagger
- * /api/auth/google:
+ * /auth/google:
  *   get:
- *     summary: Google authentication
- *     description: Redirects to Google's OAuth 2.0 authentication.
+ *     summary: Authenticate with Google
  *     tags: [Auth]
  *     responses:
  *       302:
- *         description: Redirected to Google for authentication.
+ *         description: Redirect to Google for authentication
  */
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 /**
  * @swagger
- * /api/auth/google/callback:
+ * /auth/google/callback:
  *   get:
- *     summary: Google OAuth callback
- *     description: Handles the callback from Google OAuth 2.0 authentication.
+ *     summary: Google authentication callback
  *     tags: [Auth]
  *     responses:
  *       200:
- *         description: Google authentication successful.
+ *         description: Successfully authenticated
  *       401:
- *         description: Google authentication failed.
+ *         description: Unauthorized
  */
-router.get('/auth/google/callback', passport.authenticate('google'), authController.googleAuth);
+router.get('/google/callback', passport.authenticate('google', { session: false }), authController.handleGoogleAuthResponse);
 
 /**
  * @swagger
- * /api/auth/facebook:
+ * /auth/facebook:
  *   get:
- *     summary: Facebook authentication
- *     description: Redirects to Facebook's OAuth 2.0 authentication.
+ *     summary: Authenticate with Facebook
  *     tags: [Auth]
  *     responses:
  *       302:
- *         description: Redirected to Facebook for authentication.
+ *         description: Redirect to Facebook for authentication
  */
-router.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
 
 /**
  * @swagger
- * /api/auth/facebook/callback:
+ * /auth/facebook/callback:
  *   get:
- *     summary: Facebook OAuth callback
- *     description: Handles the callback from Facebook OAuth 2.0 authentication.
+ *     summary: Facebook authentication callback
  *     tags: [Auth]
  *     responses:
  *       200:
- *         description: Facebook authentication successful.
+ *         description: Successfully authenticated
  *       401:
- *         description: Facebook authentication failed.
+ *         description: Unauthorized
  */
-router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }), authController.handleFacebookAuthResponse);
+router.get('/facebook/callback', passport.authenticate('facebook', { session: false }), authController.handleFacebookAuthResponse);
 
 /**
  * @swagger
- * /api/auth/apple:
+ * /auth/apple:
  *   get:
- *     summary: Apple authentication
- *     description: Redirects to Apple's OAuth 2.0 authentication.
+ *     summary: Authenticate with Apple
  *     tags: [Auth]
  *     responses:
  *       302:
- *         description: Redirected to Apple for authentication.
+ *         description: Redirect to Apple for authentication
  */
-router.get('/auth/apple', passport.authenticate('apple'));
+router.get('/apple', passport.authenticate('apple'));
 
 /**
  * @swagger
- * /api/auth/apple/callback:
+ * /auth/apple/callback:
  *   get:
- *     summary: Apple OAuth callback
- *     description: Handles the callback from Apple OAuth 2.0 authentication.
+ *     summary: Apple authentication callback
  *     tags: [Auth]
  *     responses:
  *       200:
- *         description: Apple authentication successful.
+ *         description: Successfully authenticated
  *       401:
- *         description: Apple authentication failed.
+ *         description: Unauthorized
  */
-router.get('/auth/apple/callback', passport.authenticate('apple'), authController.appleAuth);
+router.get('/apple/callback', passport.authenticate('apple'), authController.appleAuth);
 
 export default router;
