@@ -6,9 +6,39 @@
   "type": "module",
   "scripts": {
     "testall": "mocha --experimental-modules 'tests/**/*.test.js'",
-    "test": "mocha --experimental-modules 'tests/integration/controllers/chat.controller.test.js'",
+    "test": "mocha --experimental-modules 'tests/integration/controllers/user.controller.test.js'",
     "debug": "node --inspect app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "jest-test": "jest",
+    "jest-testall": "jest 'jest_test/**/*.jest_test.js'"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "testMatch": [
+      "<rootDir>/jest_test/**/*.jest_test.js"
+    ],
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ]
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
   },
   "author": "",
   "license": "ISC",
@@ -18,7 +48,7 @@
     "esm": "^3.2.25",
     "express": "^4.19.2",
     "firebase": "^10.11.0",
-    "firebase-admin": "^12.0.0",
+    "firebase-admin": "^12.1.1",
     "mongoose": "^8.2.4",
     "multer": "^1.4.3",
     "passport": "^0.7.0",
@@ -34,9 +64,13 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.6",
+    "@babel/preset-env": "^7.24.6",
+    "babel-jest": "^29.7.0",
     "chai": "^4.4.1",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^16.4.5",
+    "jest": "^29.7.0",
     "mocha": "^10.4.0",
     "mongodb-memory-server": "^9.1.8",
     "passport-mock-strategy": "^2.0.0",
