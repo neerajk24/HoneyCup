@@ -1,25 +1,27 @@
 // src/config/firebaseAdmin.config.js
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import admin from 'firebase-admin';
+import path from 'path';
+import { readFileSync, existsSync } from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const firebaseConfig = {
-    apiKey: "AIzaSyChrFIxe5YfCfIRD6Fzfq0z5NVWJL8epqY",
-    authDomain: "transition-chat.firebaseapp.com",
-    projectId: "transition-chat",
-    storageBucket: "transition-chat.appspot.com",
-    messagingSenderId: "1042379704022",
-    appId: "1:1042379704022:web:d0cd900df0b1b8b3a5ab77",
-    measurementId: "G-XWGR05CMXP"
-};
+let adminInitialized = false;
+const serviceAccountPath = path.resolve(__dirname, 'serviceAccountKey.json');
 
-const app = initializeApp(firebaseConfig);
-let analytics;
+if (existsSync(serviceAccountPath)) {
+  const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
 
-if (typeof window !== "undefined" && getAnalytics.isSupported()) {
-  analytics = getAnalytics(app);
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "mongodb://127.0.0.1:27017/honeyCup" 
+  });
+
+  adminInitialized = true;
+  console.log('-> Firebase Admin SDK has been initialized. We got the serviceAccountKey.json data')
 } else {
-  console.warn("Firebase Analytics is not supported in this environment.");
+  console.warn('Firebase Admin SDK not initialized. Service account key file not found.');
 }
 
-export default app;
-export { analytics };
+export default admin;
+export { adminInitialized };
