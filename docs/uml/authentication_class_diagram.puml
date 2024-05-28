@@ -1,17 +1,28 @@
-@startuml authentication_class_diagram
-class AuthenticationService {
-  +authenticate(email: String, password: String): User
-  +generateToken(user: User): Token
-  +decodeToken(token: String): UserClaims
-}
+@startuml
+title Kuvu(Dating) App Authentication Flow
 
-class Token {
-  -tokenString: String
-  -expires: DateTime
-}
+actor User
+participant "UserInterface\n(Flutter)" as UserInterface #LightBlue
+participant "AuthService\n(Flutter)" as AuthService #LightBlue
+participant FirebaseAuth
+participant "AuthController\n(Backend)" as AuthController #LightGreen
+participant "AuthMiddleware\n(Backend)" as AuthMiddleware #LightGreen
+participant "UserService\n(Backend)" as UserService #LightGreen
+participant "Database\n(MongoDB)" as Database #LightGreen
 
-AuthenticationService "1" -- "1" Token
-
-note right of AuthenticationService : Handles all authentication logic.
-note bottom of Token : Represents a JWT token with expiry.
+User -> UserInterface: SignIn
+UserInterface -> AuthService: signInWithFacebook() / signInWithApple()
+AuthService -> FirebaseAuth: authenticateWithFirebase(providerToken)
+FirebaseAuth -> AuthService: idToken
+AuthService -> UserInterface: idToken
+UserInterface -> AuthController: sendIdTokenToBackend(idToken)
+AuthController -> AuthMiddleware: authenticateToken(idToken)
+AuthMiddleware -> FirebaseAuth: verifyIdToken(idToken)
+FirebaseAuth -> AuthMiddleware: decodedToken
+AuthMiddleware -> UserService: getUserDetails(decodedToken)
+UserService -> Database: retrieveUserData(userId)
+Database -> UserService: userDetails
+UserService -> AuthController: userDetails
+AuthController -> UserInterface: userDetails
+UserInterface -> User: displayProfile(userDetails)
 @enduml
