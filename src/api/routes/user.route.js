@@ -1,12 +1,39 @@
+// src/api/routes/user.route.js
 import express from 'express';
 import { verifyToken } from '../middlewares/auth.middleware.js';
-import { getUserProfile, updateUserProfile, createUser, loginUser } from '../controllers/user.controller.js'; // Import userController functions
+import { getUserProfile, updateUserProfile, createUser, loginUser, findNearbyUsers } from '../controllers/user.controller.js';
 
 const router = express.Router();
 
-// Example protected route
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *
+ * tags:
+ *   - name: User
+ *     description: User management
+ */
+
+/**
+ * @swagger
+ * /api/users/profile:
+ *   get:
+ *     summary: Get the current user's profile
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully.
+ *       404:
+ *         description: User not found.
+ */
 router.get('/profile', verifyToken, getUserProfile);
-router.put('/profile', verifyToken, updateUserProfile);
 
 /**
  * @swagger
@@ -14,6 +41,8 @@ router.put('/profile', verifyToken, updateUserProfile);
  *   put:
  *     summary: Update the current user's profile
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -33,11 +62,11 @@ router.put('/profile', verifyToken, updateUserProfile);
  *       400:
  *         description: Error updating user profile.
  */
-router.put('/profile', updateUserProfile);
+router.put('/profile', verifyToken, updateUserProfile);
 
 /**
  * @swagger
- * /api/users/:
+ * /api/users:
  *   post:
  *     summary: Create a new user
  *     tags: [User]
@@ -89,16 +118,18 @@ router.post('/login', loginUser);
 
 /**
  * @swagger
- * /api/users/profile:
+ * /api/users/nearby:
  *   get:
- *     summary: Get the current user's profile
+ *     summary: Find nearby users
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: User profile retrieved successfully.
- *       404:
- *         description: User not found.
+ *         description: Nearby users retrieved successfully.
+ *       401:
+ *         description: Unauthorized.
  */
-router.get('/profile', getUserProfile);
+router.get('/nearby', verifyToken, findNearbyUsers);
 
 export default router;
