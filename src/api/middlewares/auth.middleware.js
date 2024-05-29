@@ -1,5 +1,5 @@
 // src/api/middlewares/auth.middleware.js
-import admin from '../../config/firebaseAdmin.config.jest.js';
+import admin from '../../config/firebaseAdmin.config.js';
 
 export const verifyToken = async (req, res, next) => {
   try {
