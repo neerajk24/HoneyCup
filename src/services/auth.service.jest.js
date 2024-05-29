@@ -1,4 +1,4 @@
-// src/services/auth.service.js
+// src/services/auth.service.jest.js
 import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
