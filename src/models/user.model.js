@@ -18,7 +18,7 @@ const userSchema = new Schema({
     dislikes: [{ type: String }],
     location: {
         type: { type: String, enum: ['Point'], default: 'Point' },
-        coordinates: [Number],
+        coordinates: { type: [Number], index: '2dsphere' },
     },
     privacySettings: { shareLocation: Boolean, shareBio: Boolean },
     ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Rating' }],
@@ -32,7 +32,8 @@ const userSchema = new Schema({
         continueChat: { type: Boolean, default: false }
     }],
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    blocked_users: [{ type: Schema.Types.ObjectId, ref: 'User' }] // New field for blocked users
+    blocked_users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    proximity_users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // New field for proximity users
 });
 
 userSchema.pre('save', async function (next) {
@@ -72,7 +73,6 @@ userSchema.methods.getFriends = async function() {
     return friends;
 };
 
-// Method to add a blocked user
 userSchema.methods.addBlockedUser = async function(blockedUserId) {
     if (!this.blocked_users.includes(blockedUserId)) {
         this.blocked_users.push(blockedUserId);
@@ -80,16 +80,21 @@ userSchema.methods.addBlockedUser = async function(blockedUserId) {
     }
 };
 
-// Method to remove a blocked user
 userSchema.methods.removeBlockedUser = async function(blockedUserId) {
     this.blocked_users = this.blocked_users.filter(id => !id.equals(blockedUserId));
     await this.save();
 };
 
-// Method to get the list of blocked users
 userSchema.methods.getBlockedUsers = async function() {
     const blockedUsers = await User.find({ _id: { $in: this.blocked_users } });
     return blockedUsers;
+};
+
+userSchema.methods.addProximityUser = async function(proximityUserId) {
+    if (!this.proximity_users.includes(proximityUserId)) {
+        this.proximity_users.push(proximityUserId);
+        await this.save();
+    }
 };
 
 const User = mongoose.model('User', userSchema);
