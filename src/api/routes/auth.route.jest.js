@@ -2,7 +2,7 @@
 
 import express from 'express';
 import passport from 'passport';
-import { createAuthController } from '../controllers/auth.controller.js';
+import { createAuthController } from '../controllers/auth.controller.jest.js';
 import * as AuthService from '../../services/auth.service.js';
 
 const router = express.Router();
