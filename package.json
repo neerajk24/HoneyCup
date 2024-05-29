@@ -6,18 +6,18 @@
   "type": "module",
   "scripts": {
     "testall": "mocha --experimental-modules 'tests/**/*.test.js'",
-    "test": "mocha --experimental-modules 'tests/integration/controllers/user.controller.test.js'",
+    "test": "mocha --experimental-modules 'tests/services/user.service.test.js'",
     "debug": "node --inspect app.js",
     "start": "node app.js",
     "jest-test": "jest",
-    "jest-testall": "jest 'jest_test/**/*.jest_test.js'"
+    "jest-testall": "jest --verbose"
   },
   "jest": {
     "transform": {
       "^.+\\.js$": "babel-jest"
     },
     "testMatch": [
-      "<rootDir>/jest_test/**/*.jest_test.js"
+      "**/jest_test/**/*.jest_test.js"
     ],
     "testEnvironment": "node",
     "moduleFileExtensions": [
@@ -44,12 +44,14 @@
   "license": "ISC",
   "dependencies": {
     "@azure/storage-blob": "^12.17.0",
+    "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "esm": "^3.2.25",
     "express": "^4.19.2",
     "firebase": "^10.11.0",
     "firebase-admin": "^12.1.1",
-    "mongoose": "^8.2.4",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.0",
     "multer": "^1.4.3",
     "passport": "^0.7.0",
     "passport-apple": "^2.0.2",
