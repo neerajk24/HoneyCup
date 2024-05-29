@@ -7,9 +7,9 @@ export const verifyToken = async (req, res, next) => {
       return res.status(403).send('Unauthorized');
     }
 
-    const token = req.headers.authorization.split('Bearer ')[1];
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    console.log('Token Verified!', decodedToken);
+    const token = req.headers.authorization.split('Bearer ')[1]; // Received idToken from AuthController
+    const decodedToken = await admin.auth().verifyIdToken(token); // Step: verifyIdToken(idToken) is called with FirebaseAuth
+    console.log('Token Verified!', decodedToken); // Step: decodedToken is received from Firebase
     req.user = decodedToken;
     next();
   } catch (error) {
