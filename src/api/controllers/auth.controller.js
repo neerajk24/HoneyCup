@@ -9,7 +9,7 @@ dotenv.config();
 export function createAuthController(authService) {
   const router = express.Router();
 
-  router.post('/login', async (req, res) => {
+  async function loginUser(req, res) {
     try {
       const { email, password } = req.body;
       const user = await authService.authenticateUser(email, password);
@@ -22,9 +22,9 @@ export function createAuthController(authService) {
       console.error(error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  });
+  }
 
-  router.get('/google/callback', (req, res) => {
+  async function handleGoogleAuthResponse(req, res) {
     try {
       if (!req.user) {
         throw new Error('User not authenticated');
@@ -35,9 +35,9 @@ export function createAuthController(authService) {
       console.error(error);
       res.status(500).send({ message: 'Internal server error' });
     }
-  });
+  }
 
-  router.get('/facebook/callback', (req, res) => {
+  async function handleFacebookAuthResponse(req, res) {
     try {
       if (!req.user) {
         throw new Error('User not authenticated');
@@ -48,9 +48,9 @@ export function createAuthController(authService) {
       console.error(error);
       res.status(500).send({ message: 'Internal server error' });
     }
-  });
+  }
 
-  router.get('/apple/callback', (req, res) => {
+  async function appleAuth(req, res) {
     try {
       if (!req.user) {
         throw new Error('User not authenticated');
@@ -61,7 +61,7 @@ export function createAuthController(authService) {
       console.error(error);
       res.status(500).send({ message: 'Internal server error' });
     }
-  });
+  }
 
-  return router;
+  return { loginUser, handleGoogleAuthResponse, handleFacebookAuthResponse, appleAuth };
 }
