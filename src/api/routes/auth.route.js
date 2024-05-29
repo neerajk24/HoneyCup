@@ -1,11 +1,12 @@
-// src/api/routes/auth.routes.js
+// src/api/routes/auth.route.js
 import express from 'express';
 import passport from 'passport';
 import { createAuthController } from '../controllers/auth.controller.js'; // Import the function to create the auth controller
+import * as AuthService from '../../services/auth.service.js'; // Import all named exports from auth.service.js
 
 const router = express.Router();
 
-const authController = createAuthController(); // Create the auth controller
+const authController = createAuthController(AuthService); // Create the auth controller
 
 /**
  * @swagger
