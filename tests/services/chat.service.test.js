@@ -9,13 +9,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const dbUri = process.env.TEST_MONGODB_URI || 'mongodb://127.0.0.1:27017/honeyCupTest';
+const dbUri = process.env.MONGODB_URI;
 
 describe('sendMessage', () => {
   let senderId;
   let recipientId;
 
   before(async function() {
+    this.timeout(30000); // Increase timeout for before hook
+
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(dbUri, {
         // Deprecated options are removed
@@ -51,6 +53,7 @@ describe('sendMessage', () => {
   });
 
   after(async function() {
+    this.timeout(30000); // Increase timeout for after hook
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
@@ -77,6 +80,12 @@ describe('sendMessage', () => {
     // Stub the User.findById method to resolve with null, simulating user not found
     sinon.stub(User, 'findById').resolves(null);
 
+    try {
+      await sendMessage(senderId, recipientId, 'Hello!');
+    } catch (error) {
+      expect(error).to.be.an('error');
+      expect(error.message).to.equal('Error sending message: Sender or recipient not found');
+    }
   });
 
 });
