@@ -1,5 +1,30 @@
 # GitHub Actions Best Practices for Azure App Service Deployments
 
+## GitHub Actions Best Practices
+
+1. **Set Longer Timeout for Async Functions**: 
+   - During deployment, set longer timeout durations, such as 60000ms, for each async function.
+   - This ensures that deployment processes complete successfully.
+
+2. **Pass IP Address for Cloud Database Access**: 
+   - When connecting to a cloud database like Azure Cosmos DB:
+     - Consider passing the IP address of your GitHub Actions workflow.
+     - This allows access through the database firewall and prevents errors such as "Request blocked by network firewall."
+     - Find the default IP addresses used by GitHub Actions in the documentation [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-githubs-ip-addresses).
+
+3. **Combine Test Commands**: 
+   - Streamline your testing process by combining different test commands into a single script.
+   - For example, use `npm run testall-combined`.
+   - This simplifies the execution of tests during deployment.
+
+4. **Configure Firewall Access**: 
+   - Ensure that the IP address used by GitHub Actions is whitelisted in your database networking settings.
+   - In Azure Cosmos DB:
+     - Navigate to the instance settings and select "Networking" from the sidebar.
+     - Choose "Public access" and then "Selected networks."
+     - Add the GitHub Actions IP addresses (e.g., 192.30.252.0/22, 185.199.108.0/22, 140.82.112.0/20, 143.55.64.0/20) along with your personal IP address.
+     - Save the settings and wait for Azure to update its networking configuration.
+
 ## Accessing and Modifying Deployed Code on Azure App Service
 
 ### Azure Portal
@@ -38,13 +63,3 @@
     ```sh
     az webapp deployment list -n <your-app-service-name> -g <your-resource-group-name>
     ```
-
-## GitHub Actions Best Practices
-
-1. **Set Longer Timeout for Async Functions**: During deployment, set longer timeout durations, such as 60000ms, for each async function to ensure that deployment processes complete successfully.
-   
-2. **Pass IP Address for Cloud Database Access**: When connecting to a cloud database like Azure Cosmos DB, consider passing the IP address of your GitHub Actions workflow to allow access through the database firewall. This helps prevent errors such as "Request blocked by network firewall." You can find the default IP addresses used by GitHub Actions in the documentation [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-githubs-ip-addresses).
-
-3. **Combine Test Commands**: To streamline your testing process, combine different test commands into a single script, such as `npm run testall-combined`. This simplifies the execution of tests during deployment.
-
-4. **Configure Firewall Access**: Ensure that the IP address used by GitHub Actions is whitelisted in your database networking settings. In Azure Cosmos DB, add the GitHub Actions IP addresses by navigating to the instance settings, selecting "Networking" from the sidebar, choosing "Public access," selecting "Selected networks," and adding the GitHub Actions IP addresses (e.g., 192.30.252.0/22, 185.199.108.0/22, 140.82.112.0/20, 143.55.64.0/20) along with your personal IP address. Save the settings and wait for Azure to update its networking configuration.
