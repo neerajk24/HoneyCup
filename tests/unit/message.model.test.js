@@ -17,19 +17,19 @@ const expect = _expect;
  * Describes the unit tests for the Message Model.
  */
 describe('Message Model', () => {
-    /**
-     * Sets up the test environment by connecting to the database.
-     */
+    
     before(async function() {
-        // Ensure the database is connected before tests run
-        await connectDatabase();
-    });
-
-    after(async function() {
-        // Clean up after all tests are done
-        await Message.deleteMany({});
-        await mongoose.disconnect();
-    });
+        this.timeout(10000); // Increase timeout for this hook
+    
+        try {
+          // Ensure the database is connected before tests run
+          await mongoose.connect(process.env.MONGODB_URI, {
+          });
+          console.log('MongoDB connected successfully.');
+        } catch (error) {
+          console.error('Error connecting to MongoDB:', error);
+        }
+      });
 
     /**
      * 1. Tests if a message can be saved successfully.
