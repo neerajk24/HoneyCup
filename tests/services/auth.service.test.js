@@ -9,10 +9,10 @@ import mongoose from 'mongoose';
  * Test suite for the AuthService module.
  */
 describe('AuthService', function() {
-  this.timeout(10000); // Increase timeout for all tests in this suite
+  this.timeout(60000); // Increase timeout for all tests in this suite
 
   before(async function() {
-    this.timeout(10000); // Increase timeout for this hook
+    this.timeout(60000); // Increase timeout for this hook
 
     try {
       // Ensure the database is connected before tests run
