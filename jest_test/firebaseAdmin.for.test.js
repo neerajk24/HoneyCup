@@ -1,10 +1,10 @@
-//for auth controller test
+// jest_test/firebaseAdmin.for.jest_test.js
 import admin from 'firebase-admin';
 import path from 'path';
 import { readFileSync, existsSync } from 'fs';
 
 let adminInitialized = false;
-const serviceAccountPath = path.resolve(__dirname, 'serviceAccountKey.json');
+const serviceAccountPath = path.resolve(__dirname, '../src/config/serviceAccountKey.json');
 
 if (existsSync(serviceAccountPath)) {
   const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
