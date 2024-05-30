@@ -11,6 +11,7 @@ const userSchema = new Schema({
     googleId: String,
     facebookId: String,
     appleId: String,
+    oauthId: String,
     profilePhoto: String,
     galleryPhotos: [{ type: String }],
     bio: String,
