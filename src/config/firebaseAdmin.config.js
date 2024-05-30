@@ -1,4 +1,4 @@
-// src/config/firebaseAdmin.config.js
+// src/config/firebaseAdmin.config.jest.js
 
 import admin from 'firebase-admin';
 import path from 'path';
@@ -17,7 +17,7 @@ if (existsSync(serviceAccountPath)) {
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
-      databaseURL: "mongodb://127.0.0.1:27017/honeyCup"
+      databaseURL: process.env.MONGODB_URI
     });
 
     adminInitialized = true;
