@@ -5,13 +5,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "testall": "mocha --experimental-modules 'tests/**/*.test.js'",
-    "test": "mocha --experimental-modules 'tests/services/user.service.test.js'",
+    "testall": "mocha --experimental-modules --exit 'tests/**/*.test.js'",
+    "test": "mocha --experimental-modules 'tests/integration/auth/oauthStrategies.test.js'",
     "debug": "node --inspect app.js",
     "start": "node app.js",
     "jest-test": "jest",
     "jest-testall": "jest --verbose",
-    "testall-combined": "npm run testall || cmd.exe /c exit 0 && npm run jest-testall"
+    "testall-combined": "npm run jest-testall && npm run testall"
   },
   "jest": {
     "transform": {
