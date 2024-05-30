@@ -25,15 +25,23 @@ describe('User Model', () => {
      * Sets up the test environment by connecting to the database.
      */
     before(async function() {
-        // Ensure the database is connected before tests run
-        await connectDatabase();
-    });
+        this.timeout(10000); // Increase timeout for this hook
     
-    after(async function() {
-        await User.deleteMany({});
-        await mongoose.disconnect();
-    });
+        try {
+          // Ensure the database is connected before tests run
+          await mongoose.connect(process.env.MONGODB_URI, {
+          });
+          console.log('MongoDB connected successfully.');
+        } catch (error) {
+          console.error('Error connecting to MongoDB:', error);
+        }
+      });
 
+      beforeEach(async function() {
+        // Clear the User collection before each test
+        await User.deleteMany({});
+      });
+      
     /**
      * 1. Tests if a user can be saved successfully.
      */
@@ -357,4 +365,5 @@ describe('User Model', () => {
         expect(user.facebookId).to.equal(userData.facebookId);
         expect(user.appleId).to.equal(userData.appleId);
     });
+
 });
