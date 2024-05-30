@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "testall": "mocha --experimental-modules --exit 'tests/**/*.test.js'",
-    "test": "mocha --experimental-modules 'tests/integration/auth/oauthStrategies.test.js'",
+    "test": "mocha --experimental-modules 'tests/services/chat.service.test.js'",
     "debug": "node --inspect app.js",
     "start": "node app.js",
     "jest-test": "jest",
@@ -60,6 +60,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "proxyquire": "^2.1.3",
+    "public-ip": "^6.0.2",
     "redis": "^4.6.13",
     "socket.io": "^4.7.5",
     "swagger-jsdoc": "^6.2.8",
