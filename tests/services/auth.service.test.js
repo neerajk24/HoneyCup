@@ -1,4 +1,3 @@
-// tests/services/auth.service.test.js
 import { expect } from 'chai';
 import * as authService from '../../src/services/auth.service.js';
 import bcrypt from 'bcryptjs';
@@ -9,10 +8,22 @@ import mongoose from 'mongoose';
 /**
  * Test suite for the AuthService module.
  */
-describe('AuthService', () => {
+describe('AuthService', function() {
+  this.timeout(10000); // Increase timeout for all tests in this suite
+
   before(async function() {
-    // Ensure the database is connected before tests run
-    await connectDatabase();
+    this.timeout(10000); // Increase timeout for this hook
+
+    try {
+      // Ensure the database is connected before tests run
+      await mongoose.connect(process.env.MONGODB_URI, {
+        // useNewUrlParser: true,    // for removing warning
+        // useUnifiedTopology: true  // for removing warning
+      });
+      console.log('MongoDB connected successfully.');
+    } catch (error) {
+      console.error('Error connecting to MongoDB:', error);
+    }
   });
 
   beforeEach(async function() {
