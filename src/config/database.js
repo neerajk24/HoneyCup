@@ -1,7 +1,7 @@
 // HoneyCup/src/config/database.js
 import { connect } from 'mongoose';
 import dotenv from 'dotenv';
-import publicIp from 'public-ip';
+import { publicIpv4 } from 'public-ip';
 
 dotenv.config();
 
@@ -9,7 +9,7 @@ const connectDatabase = async () => {
     const dbUri = process.env.MONGODB_URI; // mongodb://localhost:27017/honeyCup
 
     try {
-        const ip = await publicIp.v4();
+        const ip = await publicIpv4();
         console.log('Connecting to MongoDB at:', dbUri);
         console.log('Attempting to connect from IP:', ip);
 
