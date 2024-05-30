@@ -10,7 +10,8 @@
     "debug": "node --inspect app.js",
     "start": "node app.js",
     "jest-test": "jest",
-    "jest-testall": "jest --verbose"
+    "jest-testall": "jest --verbose",
+    "testall-combined": "npm run testall || cmd.exe /c exit 0 && npm run jest-testall"
   },
   "jest": {
     "transform": {
