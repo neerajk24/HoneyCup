@@ -11,7 +11,7 @@ if (existsSync(serviceAccountPath)) {
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "mongodb://127.0.0.1:27017/honeyCup" 
+    databaseURL: process.env.MONGODB_URI
   });
 
   adminInitialized = true;
