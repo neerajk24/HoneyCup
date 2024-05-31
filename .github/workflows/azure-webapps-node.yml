@@ -23,9 +23,9 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: kavoapp   # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: '.'  # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '20'  # set this to the node version to use
+  AZURE_WEBAPP_NAME: kavoapp
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  NODE_VERSION: '20'
 
 permissions:
   contents: read
@@ -47,6 +47,7 @@ jobs:
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
       run: |
+        echo "MONGODB_URI is: ${MONGODB_URI}"
         npm install
         npm run build --if-present
         npm run testall-combined
@@ -79,4 +80,3 @@ jobs:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-
