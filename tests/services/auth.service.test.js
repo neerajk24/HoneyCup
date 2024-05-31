@@ -4,6 +4,9 @@ import bcrypt from 'bcryptjs';
 import User from '../../src/models/user.model.js';
 import connectDatabase from '../../src/config/database.js';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 /**
  * Test suite for the AuthService module.
