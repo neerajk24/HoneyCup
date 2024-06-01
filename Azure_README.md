@@ -81,3 +81,35 @@ This documentation covers four main processes: Azure Maps, Google Geolocation Se
    - In the firewall section, provide your public IP address or IPv4 address.
    - The portal may recommend your IP address automatically.
    - To access from other networks, add the additional IP addresses as needed.
+
+## 5. Install Azure CLI in Windows
+
+1. **Visit the Installation Page**
+   - Go to the website [Azure CLI Installation](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli).
+   - Navigate to the install and update section.
+
+2. **Download and Install**
+   - Download the 32-bit or 64-bit latest MSI of Azure CLI.
+   - Click to install, then follow the internal installation process.
+
+3. **Verify Installation**
+   - Open Command Prompt and run:
+     ```bash
+     az --version
+     ```
+   - If you get a version number, the setup is successful.
+
+4. **Login to Azure CLI**
+   - Run the command to log in with your tenant ID:
+     ```bash
+     az login --tenant <DIRECTORY_ID>
+     ```
+   - For example:
+     ```bash
+     az login --tenant c72ee17f-3648-4645-979f-57ed843d2bde
+     ```
+   - Follow the prompts and approve the login request sent to your email.
+
+---
+
+This documentation covers the essential processes and configurations needed for working with Azure Maps, Google Geolocation Service, Cosmos DB, and resolving MongoDB connection issues related to network firewalls.
