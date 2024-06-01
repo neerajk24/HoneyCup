@@ -82,34 +82,34 @@ This documentation covers four main processes: Azure Maps, Google Geolocation Se
    - The portal may recommend your IP address automatically.
    - To access from other networks, add the additional IP addresses as needed.
 
-## 5. Install Azure CLI in Windows
 
-1. **Visit the Installation Page**
-   - Go to the website [Azure CLI Installation](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli).
-   - Navigate to the install and update section.
+## 5. Adding GitHub Actions IP Addresses to Cosmos DB Firewall Rules
 
-2. **Download and Install**
-   - Download the 32-bit or 64-bit latest MSI of Azure CLI.
-   - Click to install, then follow the internal installation process.
+To allow GitHub Actions to connect to your Cosmos DB instance, you need to add GitHub Actions' IP addresses to the Cosmos DB firewall rules. Follow these steps:
 
-3. **Verify Installation**
-   - Open Command Prompt and run:
-     ```bash
-     az --version
+1. **Install and Configure Azure CLI**
+   - Download and install Azure CLI from [here](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli).
+   - Open Command Prompt and run `az --version` to verify the installation.
+   - Log in to Azure CLI with your account using the command:
      ```
-   - If you get a version number, the setup is successful.
-
-4. **Login to Azure CLI**
-   - Run the command to log in with your tenant ID:
-     ```bash
-     az login --tenant <DIRECTORY_ID>
+     az login --tenant <YOUR_TENANT_ID>
      ```
+     Replace `<YOUR_TENANT_ID>` with your Azure Active Directory tenant ID.
    - For example:
      ```bash
      az login --tenant c72ee17f-3648-4645-979f-57ed843d2bde
+
+2. **Run Command to Add GitHub Actions IP Addresses**
+   - We are tring to get all the ip address used by github action given [here](https://api.github.com/meta) .
+   - Execute the following command to fetch GitHub Actions' IP addresses and add them to the Cosmos DB firewall rules:
+     ```bash
+     COSMOSDB_NAME="kavoserver" && RESOURCE_GROUP="kavoFree" && echo "Fetching GitHub Actions IP addresses..." && GITHUB_ACTIONS_IPS=$(curl -s https://api.github.com/meta | jq -r '.actions[]') && IP_RANGES=$(echo $GITHUB_ACTIONS_IPS | tr '\n' ',' | sed 's/,$//') && echo "Updating CosmosDB firewall rules with GitHub Actions IP addresses..." && az cosmosdb update --name $COSMOSDB_NAME --resource-group $RESOURCE_GROUP --ip-range-filter $IP_RANGES && echo "Update complete."
      ```
-   - Follow the prompts and approve the login request sent to your email.
+   - Ensure you replace `kavoserver` with your Cosmos DB account name and `kavoFree` with your resource group name.
 
----
+4. **Verification**
+   - Once the command execution completes, verify that the GitHub Actions IP addresses are added to the Cosmos DB firewall rules by checking the Networking settings in the Azure portal.
 
-This documentation covers the essential processes and configurations needed for working with Azure Maps, Google Geolocation Service, Cosmos DB, and resolving MongoDB connection issues related to network firewalls.
+5. **Completion**
+   - With the GitHub Actions IP addresses added to the firewall rules, GitHub Actions should now be able to connect to your Cosmos DB instance seamlessly.
+
