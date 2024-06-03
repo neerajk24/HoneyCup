@@ -1,9 +1,9 @@
 # HoneyCup
 ## Running and testing commands :-
-#### Starting the server -> node app.js
-#### Test all files -> npm run testall-combined
-#### Testing stubbed testing file -> npm run jest-testall
-#### Testing normal testing file -> npm run testall
+#### Starting the server              -> node app.js
+#### Test all files                 -> npm run testall-combined
+#### Testing stubbed testing file   -> npm run jest-testall
+#### Testing normal testing file    -> npm run testall
 
 ## Key Directory Descriptions:
 
