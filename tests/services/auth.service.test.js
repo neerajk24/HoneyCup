@@ -20,8 +20,8 @@ describe('AuthService', function() {
     try {
       // Ensure the database is connected before tests run
       await mongoose.connect(process.env.MONGODB_URI, {
-        // useNewUrlParser: true,    // for removing warning
-        // useUnifiedTopology: true  // for removing warning
+        useNewUrlParser: true,    // for removing warning
+        useUnifiedTopology: true  // for removing warning
       });
       console.log('MongoDB connected successfully.');
     } catch (error) {
