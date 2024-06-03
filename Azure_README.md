@@ -132,11 +132,23 @@ To allow GitHub Actions to connect to your Cosmos DB instance, you need to add G
      .\update_cosmosdb_firewall.bat
      ```
 
-### 4. Verification
-   - **Check Firewall Rules**: Once the command execution completes, verify that the GitHub Actions IP addresses are added to the Cosmos DB firewall rules by checking the Networking settings in the Azure portal.
+## 6. Creating or Adding a Virtual Network for Cosmos DB Networking
 
-### 5. Completion
-   - **Test the Connection**: With the GitHub Actions IP addresses added to the firewall rules, GitHub Actions should now be able to connect to your Cosmos DB instance seamlessly.
-   - **Resolve Any Issues**: If there are still connectivity issues, ensure that the IP addresses are correct and there are no other network restrictions.
+Azure Cosmos DB supports network isolation by integrating with Azure Virtual Network. You can either create a new virtual network or add an existing one to enable secure access to your Cosmos DB resources. Follow these steps:
+
+### Creating a New Virtual Network
+   - **Navigate to Azure Portal**: Go to the [Azure portal](https://portal.azure.com/).
+   - **Create a New Virtual Network**: Click on "Create a resource" > Networking > Virtual network.
+   - **Fill in Details**: Provide the necessary details such as name, address space, and subscription.
+   - **Configure Subnet**: Add a subnet for Cosmos DB by navigating to "Subnets" and clicking on "+ Subnet". Assign an appropriate address range.
+   - **Save and Create**: Review the settings and click on "Review + Create" to create the virtual network.
+
+### Adding an Existing Virtual Network
+   - **Navigate to Azure Cosmos DB Networking**: In the Azure portal, go to your Cosmos DB instance.
+   - **Access Networking Settings**: Under "Settings", select "Networking".
+   - **Configure Virtual Network**: Click on "Add existing virtual network".
+   - **Select Virtual Network**: Choose the virtual network from the list or enter the virtual network's resource ID.
+   - **Configure Subnet**: Select the subnet within the virtual network to associate with Cosmos DB.
+   - **Save Changes**: Review the configuration and save the changes.
 
 By following these steps, you can ensure that your GitHub Actions workflows can connect to your Azure Cosmos DB instance without encountering network firewall issues.
