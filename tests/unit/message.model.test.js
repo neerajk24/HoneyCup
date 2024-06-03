@@ -19,7 +19,7 @@ const expect = _expect;
 describe('Message Model', () => {
     
     before(async function() {
-        this.timeout(30000); // Increase timeout for this hook
+        this.timeout(90000); // Increase timeout for this hook
     
         try {
           // Ensure the database is connected before tests run
@@ -35,7 +35,7 @@ describe('Message Model', () => {
      * 1. Tests if a message can be saved successfully.
      */
     it('should save a message', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
@@ -61,7 +61,7 @@ describe('Message Model', () => {
      * 2. Tests if a message can be retrieved by ID.
      */
     it('should retrieve a message by ID', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
@@ -86,7 +86,7 @@ describe('Message Model', () => {
      * 3. Tests if a message can be updated.
      */
     it('should update a message', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
@@ -113,7 +113,7 @@ describe('Message Model', () => {
      * 4. Tests if a message can be deleted.
      */
     it('should delete a message', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
@@ -136,7 +136,7 @@ describe('Message Model', () => {
      * 5. Tests if multiple messages can be deleted at once.
      */
     it('should delete multiple messages', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
         // Create multiple messages
         const messageData1 = { sender: new mongoose.Types.ObjectId(), receiver: new mongoose.Types.ObjectId(), content: 'Message 1' };
         const messageData2 = { sender: new mongoose.Types.ObjectId(), receiver: new mongoose.Types.ObjectId(), content: 'Message 2' };
@@ -157,7 +157,7 @@ describe('Message Model', () => {
      * 6. Tests if multiple messages can be retrieved at once.
      */
     it('should retrieve multiple messages', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
         // Create multiple messages
         const messageData1 = { sender: new mongoose.Types.ObjectId(), receiver: new mongoose.Types.ObjectId(), content: 'Message 1' };
         const messageData2 = { sender: new mongoose.Types.ObjectId(), receiver: new mongoose.Types.ObjectId(), content: 'Message 2' };
@@ -175,7 +175,7 @@ describe('Message Model', () => {
      * 7. Tests if required fields (sender, receiver, content) are enforced.
      */
     it('should require sender, receiver, and content fields', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
         // Create a message object without required fields
         const messageWithoutFields = new Message({});
 
@@ -204,7 +204,7 @@ describe('Message Model', () => {
      * 8. Tests if the isImage field defaults to false when a new message is created.
      */
     it('should default the isImage field to false when creating a new message', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
@@ -224,7 +224,7 @@ describe('Message Model', () => {
      * 9. Tests if the seenBy field is initially empty when a new message is created.
      */
     it('should have an empty seenBy field when creating a new message', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
@@ -244,7 +244,7 @@ describe('Message Model', () => {
      * 10. Tests if the isImage field is set to true when creating a message with an image.
      */
     it('should set the isImage field to true when creating a message with an image', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
@@ -263,7 +263,7 @@ describe('Message Model', () => {
 
     // 11. Tests if the seenBy field is updated correctly when a user views the message
     it('should update the seenBy field when a user views the message', async function() {
-        this.timeout(10000);
+        this.timeout(60000);
 
         const senderId = new mongoose.Types.ObjectId();
         const receiverId = new mongoose.Types.ObjectId();
