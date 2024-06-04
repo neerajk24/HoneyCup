@@ -29,11 +29,16 @@
 
 ## Chat 
 
-/my-dating-app \n
-  /src        /n
+/my-dating-app 
+
+  /src       
+  
     /api
+    
       /controllers
+      
         - chat.controller.js
+        
       /routes
         - chat.routes.js
     /models
@@ -55,8 +60,26 @@
   package.json
   - app.js (You'll need to modify this for Socket.IO initialization)
 
-
 Key File Details
+
+- chat.controller.js: Handles incoming chat requests (fetch history, etc.). Interacts with chat.service.js.
+- chat.routes.js: Defines chat API endpoints. Uses controller methods to handle requests.
+- message.model.js: Defines the schema for messages (sender, receiver, content, timestamp).
+- chat.service.js: Contains chat business logic (send messages, fetch history, delete messages, keyword alerts).
+- socketio.config.js: Configures and exports the Socket.IO instance (integrated in app.js).
+- chat.constants.js (Optional): Defines chat-specific constants for better maintainability (event names, error codes).
+- app.js: Modified for Socket.IO initialization (imports configuration, attaches to server).
+
+Authentication
+- Flutter App:
+- Use Firebase Authentication SDK for login/signup/logout.
+- Obtain the Firebase ID token after successful authentication.
+
+Node.js Backend:
+- Set up Firebase Admin SDK.
+- Verify the Firebase ID token received from the client (middleware).
+- Generate and manage session tokens if needed.
+
 chat.controller.js: This controller will handle incoming requests related to chat operations, like fetching message history. It interacts with the chat.service.js to process these requests.
 
 chat.routes.js: Defines routes for chat-related endpoints. These routes will use the controller methods to handle requests.
