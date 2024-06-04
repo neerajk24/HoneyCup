@@ -29,8 +29,8 @@
 
 ## Chat 
 
-/my-dating-app
-  /src
+/my-dating-app \n
+  /src        /n
     /api
       /controllers
         - chat.controller.js
