@@ -30,15 +30,10 @@
 ## Chat 
 
 /my-dating-app 
-
   /src       
-  
     /api
-    
       /controllers
-      
         - chat.controller.js
-        
       /routes
         - chat.routes.js
     /models
