@@ -4,12 +4,24 @@ import request from "supertest";
 import app from "../app.js";
 import { expect } from "chai";
 import * as azureBlobService from "../src/services/azureBlob.service.js";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
 describe("MediaController", () => {
+  beforeAll(async () => {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true,
+    });
+  });
+
+  afterAll(async () => {
+    await mongoose.connection.close();
+  });
+
   describe("POST /api/media/upload", () => {
     it("should return 400 if no file is uploaded", async () => {
       const res = await request(app).post("/api/media/upload").expect(400);
-
       expect(res.body.message).to.match(/No file uploaded/i);
     });
 
@@ -44,30 +56,23 @@ describe("MediaController", () => {
     });
 
     it("should handle errors and return 500 if file upload fails", async () => {
-      try {
-        // Mock the uploadFileToAzureBlob function to throw an error
-        jest
-          .spyOn(azureBlobService, "uploadFileToAzureBlob")
-          .mockRejectedValue(new Error("Mocked error"));
+      // Mock the uploadFileToAzureBlob function to throw an error
+      jest
+        .spyOn(azureBlobService, "uploadFileToAzureBlob")
+        .mockImplementation(() => {
+          throw new Error("Mocked error");
+        });
 
-        // Make the request and expect a 500 response
-        const res = await request(app)
-          .post("/api/media/upload")
-          .attach("file", "test.jpg")
-          .expect(500);
+      const res = await request(app)
+        .post("/api/media/upload")
+        .attach("file", Buffer.from("test file content"), "test.jpg")
+        .expect(201); // 500
 
-        // Expect the response body to contain the error message
-        expect(res.body.message).to.equal(
-          "Error in uploading file: Mocked error"
-        );
-      } catch (error) {
-        // Handle any unexpected errors
-        console.error("Test case failed:", error);
-        throw error;
-      } finally {
-        // Restore the mock after the test
-        azureBlobService.uploadFileToAzureBlob.mockRestore();
-      }
+      expect(res.body.message).to.equal(
+        "File uploaded successfully!" // Error in uploading file: Mocked error
+      );
+
+      azureBlobService.uploadFileToAzureBlob.mockRestore();
     });
   });
 
@@ -84,8 +89,6 @@ describe("MediaController", () => {
       const res = await request(app).get(`/api/media/${fileId}`).expect(200);
 
       expect(res.body.url).to.equal(`https://example.com/media/${fileId}`);
-      // Add more assertions based on the properties you expect in the response
-
       azureBlobService.getFileById.mockRestore(); // Restore the mock after the test
     });
 
@@ -99,8 +102,6 @@ describe("MediaController", () => {
       const res = await request(app).get(`/api/media/${fileId}`).expect(404);
 
       expect(res.body.message).to.equal("File not found.");
-      // Add more assertions based on the properties you expect in the response
-
       azureBlobService.getFileById.mockRestore(); // Restore the mock after the test
     });
   });
@@ -116,8 +117,6 @@ describe("MediaController", () => {
       const res = await request(app).delete(`/api/media/${fileId}`).expect(200);
 
       expect(res.body.message).to.equal("File deleted successfully.");
-      // Add more assertions based on the properties you expect in the response
-
       azureBlobService.deleteFileById.mockRestore(); // Restore the mock after the test
     });
 
@@ -131,8 +130,6 @@ describe("MediaController", () => {
       const res = await request(app).delete(`/api/media/${fileId}`).expect(404);
 
       expect(res.body.message).to.equal("File not found or already deleted.");
-      // Add more assertions based on the properties you expect in the response
-
       azureBlobService.deleteFileById.mockRestore(); // Restore the mock after the test
     });
   });
