@@ -1,7 +1,5 @@
 // src/services/azureBlob.service.test.js
 
-// src/services/azureBlob.service.test.js
-
 import sinon from "sinon";
 import { expect } from "chai";
 import { dirname, resolve } from "path";
