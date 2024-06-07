@@ -1,8 +1,14 @@
 // src/services/auth.service.jest.js
-import bcrypt from 'bcryptjs';
-import User from '../models/user.model.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
-import firebaseApp from '../../jest_test/firebaseAdmin.for.test.js'; // Import the app instance
+
+import bcrypt from "bcryptjs";
+import User from "../models/user.model.js";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+} from "firebase/auth";
+import firebaseApp from "../../jest_test/firebaseAdmin.for.test.js"; // for jest test
 
 // Module-level variable to store initialized Firebase instance
 let auth;
@@ -71,11 +77,11 @@ export async function facebook_Auth() {
 export const authenticateUser = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new Error('Password is incorrect');
+    throw new Error("Password is incorrect");
   }
   return user;
 };
