@@ -24,6 +24,7 @@ This documentation covers four main processes: Azure Storage - container, Azure 
 5. Set this connection string as an environment variable:
 ```env
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=kavoappstorage;AccountKey=f43ZieotGt9rxEpRHLc+F2HlDp4zCKerFSj5KUSjoGPdOFj7Xw8J36P2sKxXAUW8kblRCEddltGy+AStwjRSXQ==;EndpointSuffix=core.windows.net
+```
 
 ### 1.4 Setup the Container
 
