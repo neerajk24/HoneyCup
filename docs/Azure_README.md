@@ -1,8 +1,47 @@
 # Process Documentation
 
-This documentation covers four main processes: Azure Maps, Google Geolocation Service, Cosmos DB, and solving MongoDB connection issues related to network firewalls.
+This documentation covers four main processes: Azure Storage - container, Azure Maps, Google Geolocation Service, Cosmos DB, and solving MongoDB connection issues related to network firewalls.
 
 ## 1. Azure Blobstorage - Container
+
+### 1.1 Create Azure Storage Account
+
+1. Go to the Azure portal and log in.
+2. Create a storage account instance named **kavoappstorage** within the resource group **kavoFree**.
+
+### 1.2 Solve Firewall Issues
+
+1. To solve firewall issues, you need to add an existing virtual network or create a new virtual network.
+2. Add your public IP address for testing locally.
+3. Add the IP addresses used by GitHub Actions. In our case, the range is `213.199.183.0/24`.
+
+### 1.3 Retrieve Access Key or Connection String
+
+1. Open your storage account instance in the Azure portal.
+2. Navigate to **Security + Networking** in the sidebar on the left.
+3. Go to **Access keys**.
+4. Copy the first connection string provided. 
+5. Set this connection string as an environment variable:
+```env
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=kavoappstorage;AccountKey=f43ZieotGt9rxEpRHLc+F2HlDp4zCKerFSj5KUSjoGPdOFj7Xw8J36P2sKxXAUW8kblRCEddltGy+AStwjRSXQ==;EndpointSuffix=core.windows.net
+
+### 1.4 Setup the Container
+
+1. In your storage account instance, navigate to Data Storage > Containers in the sidebar on the left.
+2. Create a new container with a name of your choice, for example, azure-filearchive.
+3. After creating the container, click on it and configure the access level.
+4. Set Change access level to Container (anonymous read access for containers and blobs).
+
+### 1.5 Accessing Data
+
+- All data stored in this container will have URLs in the following format:
+   ```bash
+     https://kavoappstorage.blob.core.windows.net/{container_name}/{file_name}
+     ```
+   - **Example**:
+     ```bash
+     https://kavoappstorage.blob.core.windows.net/azure-filearchive/test.jpg
+     ```
 
 ## 2. Cosmos DB
 
