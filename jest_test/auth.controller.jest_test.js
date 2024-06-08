@@ -3,7 +3,7 @@
 import request from 'supertest';
 import express from 'express';
 import { createAuthController } from '../src/api/controllers/auth.controller.jest.js';
-import * as authService from '../src/services/auth.service.jest.js';
+import * as authService from '../src/services/auth.service.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
