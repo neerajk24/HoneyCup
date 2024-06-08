@@ -1,17 +1,21 @@
 // jest_test/media.controller.jest_test.js
 
 import request from "supertest";
-import app from "../app.js";
+import { createApp } from "../app.js"; // Import createApp instead of app
 import { expect } from "chai";
 import * as azureBlobService from "../src/services/azureBlob.service.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
+dotenv.config(); // Ensure dotenv is loaded
+
+const app = createApp(); // Initialize app
+
 describe("MediaController", () => {
   beforeAll(async () => {
     await mongoose.connect(process.env.MONGODB_URI, {
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
   });
 
