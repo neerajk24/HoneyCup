@@ -10,6 +10,8 @@ import authRoutes from './src/api/routes/auth.route.js';
 import userRoutes from './src/api/routes/user.route.js';
 import mediaRoutes from './src/api/routes/media.route.js';
 import chatRoutes from './src/api/routes/chat.route.js';
+import blockRoutes from './src/api/routes/blocked.route.js';
+import friendRoutes from './src/api/routes/friends.route.js';
 import passport from 'passport';
 import './src/config/passport-setup.js';
 import cors from 'cors';
@@ -32,6 +34,8 @@ const createApp = () => {
     app.use('/api/users', userRoutes);
     app.use('/api/media', mediaRoutes);
     app.use('/api/chat', chatRoutes);
+    app.use('/api/blocked',blockRoutes);
+    app.use('/api/friends',friendRoutes);
 
     // Swagger setup
     const swaggerOptions = {

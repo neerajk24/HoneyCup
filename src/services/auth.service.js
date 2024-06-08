@@ -1,16 +1,37 @@
 // src/services/auth.service.js
-import bcrypt from 'bcryptjs';
-import User from '../models/user.model.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
-import firebaseApp from '../config/firebaseAdmin.config.js'; // Import the app instance
 
-// Module-level variable to store initialized Firebase instance
-let auth;
+import bcrypt from "bcryptjs";
+import User from "../models/user.model.js";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+} from "firebase/auth";
+//import firebaseApp from "../config/firebaseAdmin.config.js"; // auth.service
 
-// Function to get the Firebase authentication instance
+async function loadFirebaseApp() {
+  if (
+    process.env.NODE_ENV === "test" ||
+    process.argv.some((arg) => arg.includes("jest"))
+  ) {
+    firebaseApp = (await import("../../jest_test/firebaseAdmin.for.test.js"))
+      .default;
+  } else {
+    firebaseApp = (await import("../config/firebaseAdmin.config.js")).default;
+  }
+}
+
+async function initializeFirebase() {
+  await loadFirebaseApp();
+  auth = getAuth(firebaseApp);
+}
+
 function getAuthInstance() {
   if (!auth) {
-    auth = getAuth(firebaseApp);
+    throw new Error(
+      "Firebase not initialized. Call initializeFirebase() first."
+    );
   }
   return auth;
 }
@@ -71,11 +92,11 @@ export async function facebook_Auth() {
 export const authenticateUser = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new Error('Password is incorrect');
+    throw new Error("Password is incorrect");
   }
   return user;
 };

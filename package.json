@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "testall": "mocha --experimental-modules --exit 'tests/**/*.test.js'",
-    "test": "mocha --experimental-modules 'tests/services/chat.service.test.js'",
+    "test": "mocha --experimental-modules 'tests/services/azureBlob.service.test.js'",
     "debug": "node --inspect app.js",
     "start": "node app.js",
-    "jest-test": "jest",
+    "jest-test": "jest jest_test/media.controller.jest_test.js",
     "jest-testall": "jest --verbose",
     "testall-combined": "npm run jest-testall && npm run testall"
   },

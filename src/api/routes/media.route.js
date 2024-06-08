@@ -1,10 +1,10 @@
 // src/api/routes/media.routes.js
-import express from 'express';
-import * as mediaController from '../controllers/media.controller.js';
-import multer from 'multer';
 
-const uploadPath = "../../uploaded";
-const upload = multer({ dest: uploadPath });
+import express from "express";
+import * as mediaController from "../controllers/media.controller.js";
+import multer from "multer";
+
+const upload = multer({ dest: "uploads/" }); // Configure multer as needed
 const router = express.Router();
 
 /**
@@ -31,7 +31,7 @@ const router = express.Router();
  *       400:
  *         description: Error uploading the file.
  */
-router.post('/upload', upload.single('file'), mediaController.uploadFile);
+router.post("/upload", upload.single("file"), mediaController.uploadFile);
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ router.post('/upload', upload.single('file'), mediaController.uploadFile);
  *       404:
  *         description: File not found.
  */
-router.get('/:id', mediaController.fetchMedia);
+router.get("/:id", mediaController.fetchMedia);
 
 /**
  * @swagger
@@ -80,7 +80,7 @@ router.get('/:id', mediaController.fetchMedia);
  *       404:
  *         description: File not found.
  */
-router.delete('/:id', mediaController.deleteMedia);
+router.delete("/:id", mediaController.deleteMedia);
 
 export default router;
 export { upload };

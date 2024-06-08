@@ -1,36 +1,56 @@
 // src/services/azureBlob.service.js
 
 import { BlobServiceClient } from "@azure/storage-blob";
+import dotenv from "dotenv";
+dotenv.config();
 
-const connectionString = "DefaultEndpointsProtocol=https;AccountName=imsstorageaccountuat;AccountKey=STtRdMRjW0VmbGCUbtWc6vjLcjz5qsaE0mSHvuRurvgLbhrOnvqOhrQpbsQ7L/syoBwuph+On3uJ+AStrVvX8g==";
+const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const containerName = "azure-filearchive";
 
-async function uploadFileToAzureBlob(filePath, blobName) {
-  const blobServiceClient = new BlobServiceClient(connectionString);
+const blobServiceClient =
+  BlobServiceClient.fromConnectionString(connectionString);
+
+export async function uploadFileToAzureBlob(buffer, blobName) {
   const containerClient = blobServiceClient.getContainerClient(containerName);
 
   try {
     await containerClient.createIfNotExists();
 
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-    await blockBlobClient.uploadFromFile(filePath);
+    await blockBlobClient.uploadData(buffer); // Correct method name
 
-    return { message: "File uploaded successfully!", blobUrl: blockBlobClient.url };
+    return {
+      message: "File uploaded successfully!",
+      blobUrl: blockBlobClient.url,
+    };
   } catch (error) {
     throw new Error(`Error uploading file: ${error.message}`);
   }
 }
 
-export async function getFileById(id) {
-  // Example: Fetch file details by ID from your storage
-  // This would need to be replaced with actual logic to fetch the file
-  return { url: `https://example.com/media/${id}` };
+export async function getFileById(blobName) {
+  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const blobClient = containerClient.getBlockBlobClient(blobName);
+
+  const exists = await blobClient.exists();
+  if (!exists) {
+    return null;
+  }
+
+  return { url: blobClient.url };
 }
 
-export async function deleteFileById(id) {
-  // Example: Delete a file by ID from your storage
-  // This would need to be replaced with actual logic to delete the file
-  return true; // Indicate success
+export async function deleteFileById(blobName) {
+  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const blobClient = containerClient.getBlockBlobClient(blobName);
+
+  const exists = await blobClient.exists();
+  if (!exists) {
+    return false;
+  }
+
+  await blobClient.delete();
+  return true;
 }
 
 export default uploadFileToAzureBlob;
