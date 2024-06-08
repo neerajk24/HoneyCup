@@ -3,6 +3,11 @@
 import admin from "firebase-admin";
 import path from "path";
 import { readFileSync, existsSync } from "fs";
+import { fileURLToPath } from "url";
+
+// Resolve the current directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let adminInitialized = false;
 const serviceAccountPath = path.resolve(
