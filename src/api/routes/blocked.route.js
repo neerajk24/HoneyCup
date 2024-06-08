@@ -1,7 +1,11 @@
 // src/api/routes/blocked.route.js
 
-import express from 'express';
-import { addBlockedUser, removeBlockedUser, getBlockedUsers } from '../controllers/blocked.controller.js';
+import express from "express";
+import {
+  addBlockedUser,
+  removeBlockedUser,
+  getBlockedUsers,
+} from "../controllers/blocked.controller.js";
 
 const router = express.Router();
 
@@ -32,7 +36,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error.
  */
-router.post('/block', addBlockedUser);
+router.post("/block", addBlockedUser);
 
 /**
  * @swagger
@@ -61,7 +65,7 @@ router.post('/block', addBlockedUser);
  *       500:
  *         description: Internal server error.
  */
-router.post('/unblock', removeBlockedUser);
+router.post("/unblock", removeBlockedUser);
 
 /**
  * @swagger
@@ -84,6 +88,6 @@ router.post('/unblock', removeBlockedUser);
  *       500:
  *         description: Internal server error.
  */
-router.get('/blocked/:userId', getBlockedUsers);
+router.get("/blocked/:userId", getBlockedUsers);
 
 export default router;
