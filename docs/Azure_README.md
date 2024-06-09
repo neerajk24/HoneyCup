@@ -14,6 +14,7 @@ This documentation covers four main processes: Azure Storage - container, Azure 
 1. To solve firewall issues, you need to add an existing virtual network or create a new virtual network.
 2. Add your public IP address for testing locally.
 3. Add the IP addresses used by GitHub Actions. In our case, the range is `213.199.183.0/24`.
+4. Add a new virtual network to use.
 
 ### 1.3 Retrieve Access Key or Connection String
 
