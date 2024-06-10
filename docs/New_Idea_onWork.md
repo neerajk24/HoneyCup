@@ -28,7 +28,7 @@ This document outlines a new design for a chat application model, replacing the 
 
 ## Model Example
 
-```bash
+```json
 {
   "_id": "unique_conversation_id",
   "participants": [
@@ -39,29 +39,35 @@ This document outlines a new design for a chat application model, replacing the 
     {
       "message_id": "unique_message_id_1",
       "sender_id": "user_id_1",
+      "receiver_id": "user_id_2",
       "content": "Hello, how are you?",
       "content_type": "text",
       "content_link": null,
       "timestamp": "2024-05-18T12:34:56Z",
-      "is_read": false
+      "is_read": false,
+      "is_appropriate": true
     },
     {
       "message_id": "unique_message_id_2",
       "sender_id": "user_id_2",
+      "receiver_id": "user_id_1",
       "content": "I'm good, thanks!",
       "content_type": "text",
       "content_link": null,
       "timestamp": "2024-05-18T12:35:10Z",
-      "is_read": false
+      "is_read": false,
+      "is_appropriate": true
     },
     {
       "message_id": "unique_message_id_3",
       "sender_id": "user_id_1",
+      "receiver_id": "user_id_2",
       "content": null,
       "content_type": "file",
       "content_link": "https://kavoappstorage.blob.core.windows.net/azure-filearchive/test.jpg",
       "timestamp": "2024-05-18T12:36:00Z",
-      "is_read": false
+      "is_read": false,
+      "is_appropriate": true
     }
   ]
 }
