@@ -1,11 +1,13 @@
 // src/services/chats.service.test.js
 
 import mongoose from "mongoose";
+import fs from "fs";
+import path from "path";
 import ChatService from "../../src/services/chats.service.js";
 import Conversation from "../../src/models/chats.model.js";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import dotenv from "dotenv";
-import { expect } from "chai"; // Import expect from chai for assertions
+import { expect } from "chai";
 
 dotenv.config();
 
@@ -47,6 +49,8 @@ const seedDatabase = async () => {
   });
 };
 
+const __dirname = path.dirname(new URL(import.meta.url).pathname).substring(1);
+
 describe("ChatService", () => {
   it("should send a text message", async () => {
     const message = {
@@ -62,60 +66,60 @@ describe("ChatService", () => {
     );
     expect(conversation.messages.length).to.equal(1);
     expect(conversation.messages[0].content).to.equal(message.content);
+    global.textMessageId = conversation.messages[0].message_id; // Save message ID for deletion
   });
 
   it("should send a .txt file", async () => {
+    const testTextFilePath = path.resolve(__dirname, "test_text_file.txt");
     const message = {
       message_id: new mongoose.Types.ObjectId().toString(),
       sender_id: user1Id.toString(),
       receiver_id: user2Id.toString(),
       content_type: "file",
-      content_link: "./test_text_file.txt",
+      content_link: testTextFilePath,
     };
     const conversation = await ChatService.sendMessage(
       "conversation1",
       message
     );
     expect(conversation.messages.length).to.equal(1);
-    expect(conversation.messages[0].content_link).to.equal(
-      message.content_link
-    );
+    expect(conversation.messages[0].content_link).to.include(
+      "test_text_file.txt"
+    ); // Verify URL
   });
 
   it("should send a .jpg file", async () => {
+    const testJpgFilePath = path.resolve(__dirname, "img_jpg.jpg");
     const message = {
       message_id: new mongoose.Types.ObjectId().toString(),
       sender_id: user1Id.toString(),
       receiver_id: user2Id.toString(),
       content_type: "file",
-      content_link: "./img_jpg.jpg",
+      content_link: testJpgFilePath,
     };
     const conversation = await ChatService.sendMessage(
       "conversation1",
       message
     );
     expect(conversation.messages.length).to.equal(1);
-    expect(conversation.messages[0].content_link).to.equal(
-      message.content_link
-    );
+    expect(conversation.messages[0].content_link).to.include("img_jpg.jpg"); // Verify URL
   });
 
   it("should send a .png file", async () => {
+    const testPngFilePath = path.resolve(__dirname, "img_png.png");
     const message = {
       message_id: new mongoose.Types.ObjectId().toString(),
       sender_id: user1Id.toString(),
       receiver_id: user2Id.toString(),
       content_type: "file",
-      content_link: "./img_png.png",
+      content_link: testPngFilePath,
     };
     const conversation = await ChatService.sendMessage(
       "conversation1",
       message
     );
     expect(conversation.messages.length).to.equal(1);
-    expect(conversation.messages[0].content_link).to.equal(
-      message.content_link
-    );
+    expect(conversation.messages[0].content_link).to.include("img_png.png"); // Verify URL
   });
 
   it("should get all messages", async () => {
@@ -133,7 +137,7 @@ describe("ChatService", () => {
         sender_id: user1Id.toString(),
         receiver_id: user2Id.toString(),
         content_type: "file",
-        content_link: "./test_uploaded.txt",
+        content_link: "./test_text_file.txt",
       },
     ];
     conversation.messages = messages;
@@ -161,7 +165,7 @@ describe("ChatService", () => {
     };
     const updatedConversation = await ChatService.editMessage(
       "conversation1",
-      conversation.messages[0]._id,
+      message.message_id, // Use message_id directly
       newMessage
     );
     expect(updatedConversation.messages[0].content).to.equal(
@@ -183,7 +187,7 @@ describe("ChatService", () => {
 
     const updatedConversation = await ChatService.deleteMessage(
       "conversation1",
-      conversation.messages[0]._id
+      conversation.messages[0].message_id
     );
     expect(updatedConversation.messages.length).to.equal(0);
   });
