@@ -31,6 +31,7 @@ const userSchema = new Schema({
     chattingWith: [{
         user: { type: Schema.Types.ObjectId, ref: 'User' },
         continueChat: { type: Boolean, default: false }
+        //ConversationId
     }],
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     blocked_users: [{ type: Schema.Types.ObjectId, ref: 'User' }],

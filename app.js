@@ -12,11 +12,15 @@ import mediaRoutes from './src/api/routes/media.route.js';
 import chatRoutes from './src/api/routes/chat.route.js';
 import blockRoutes from './src/api/routes/blocked.route.js';
 import friendRoutes from './src/api/routes/friends.route.js';
+import socketRoutes from './src/api/routes/socket.Chat.route.js';
 import passport from 'passport';
 import './src/config/passport-setup.js';
 import cors from 'cors';
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import { createServer } from 'http';  // Changed import
+import { Server } from 'socket.io';  // Changed import
+import { ChatSocket } from './src/Sockets/chat.socket.js';
 
 const createApp = () => {
     const app = express();
@@ -34,8 +38,9 @@ const createApp = () => {
     app.use('/api/users', userRoutes);
     app.use('/api/media', mediaRoutes);
     app.use('/api/chat', chatRoutes);
-    app.use('/api/blocked',blockRoutes);
-    app.use('/api/friends',friendRoutes);
+    app.use('/api/blocked', blockRoutes);
+    app.use('/api/friends', friendRoutes);
+    app.use('/app/socketChat', socketRoutes);
 
     // Swagger setup
     const swaggerOptions = {
@@ -59,8 +64,10 @@ const createApp = () => {
 const app = createApp();
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
+const server = createServer(app);  // Changed line
+const io = new Server(server);  // Changed line
+ChatSocket(io);
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
