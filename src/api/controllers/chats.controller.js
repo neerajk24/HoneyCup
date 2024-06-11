@@ -1,20 +1,8 @@
-import express from "express";
+// src/api/controllers/chats.controller.js
+
 import chatService from "../../services/chats.service.js";
 
-const router = express.Router();
-
-// Middleware to check for valid conversation
-async function checkConversation(req, res, next) {
-  const conversationId = req.params.conversationId;
-  const conversation = await Conversation.findById(conversationId);
-  if (!conversation) {
-    return res.status(404).json({ message: "Conversation not found" });
-  }
-  req.conversation = conversation;
-  next();
-}
-
-router.post("/:conversationId/messages", async (req, res) => {
+const sendMessage = async (req, res) => {
   try {
     const message = req.body;
     const savedConversation = await chatService.sendMessage(
@@ -25,18 +13,18 @@ router.post("/:conversationId/messages", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-});
+};
 
-router.get("/:conversationId/messages", async (req, res) => {
+const getMessages = async (req, res) => {
   try {
     const messages = await chatService.getMessages(req.params.conversationId);
     res.status(200).json(messages);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-});
+};
 
-router.put("/:conversationId/messages/:messageId", async (req, res) => {
+const editMessage = async (req, res) => {
   try {
     const newContent = req.body.content;
     const updatedConversation = await chatService.editMessage(
@@ -48,9 +36,9 @@ router.put("/:conversationId/messages/:messageId", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-});
+};
 
-router.delete("/:conversationId/messages/:messageId", async (req, res) => {
+const deleteMessage = async (req, res) => {
   try {
     const updatedConversation = await chatService.deleteMessage(
       req.params.conversationId,
@@ -60,6 +48,25 @@ router.delete("/:conversationId/messages/:messageId", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-});
+};
 
-export default router;
+const getMessage = async (req, res) => {
+  try {
+    const conversation = req.conversation;
+    const message = conversation.messages.id(req.params.messageId);
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+    res.status(200).json(message);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export default {
+  sendMessage,
+  getMessages,
+  editMessage,
+  deleteMessage,
+  getMessage,
+};
