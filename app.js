@@ -41,7 +41,7 @@ const createApp = () => {
     app.use('/api/chat', chatRoutes);
     app.use('/api/blocked', blockRoutes);
     app.use('/api/friends', friendRoutes);
-    app.use('/app/socketChat', socketRoutes);
+    app.use('/api/socketChat', socketRoutes);
 
     // Swagger setup
     const swaggerOptions = {

@@ -1,4 +1,5 @@
 import Conversation from "../models/chats.model.js";
+import mongoose from 'mongoose';
 
 let ConnectedSockets = [
     // {Userid , socketId}
@@ -14,29 +15,25 @@ export const ChatSocket = (io) => {
         socket.on('joinRoom', async ({ userId, conversationId }) => {
             socket.join(conversationId);
             console.log(`User ${userId} join the room ${conversationId}`);
-            const chat = await Conversation.findById(conversationId);
+            const chat = await Conversation.findOne({ _id: new mongoose.Types.ObjectId(conversationId) }); 
             if (chat) {
                 socket.emit('previousMessages', chat.messages);
             }
         });
         socket.on('sendMessages', async ({ conversationId, message }) => {
             io.to(conversationId).emit('recieveMessage', message);
-            const chat = await Conversation.findById(conversationId);
+            const chat = await Conversation.findOne({ _id: new mongoose.Types.ObjectId(conversationId) }); 
             if (chat) {
                 chat.messages.push(message);
                 await chat.save();
             }
             else {
-                const newChat = new Conversation({
-                    _id: conversationId,
-                    participants: [message.sender_id, message.receiver_id],
-                    messages: [message],
-                });
-                await newChat.save();
+                console.log("Error in sending messages Chat not found!");
             }
+            //Case of chat not present is excluded right now.
         })
-        socket.on('disconnect', ()=>{
-            ConnectedSockets = ConnectedSockets.filter((soc)=>soc.Userid!==Userid);
+        socket.on('disconnect', () => {
+            ConnectedSockets = ConnectedSockets.filter((soc) => soc.Userid !== Userid);
             console.log(socket.id + " disconnected");
         })
     })

@@ -1,37 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-const URL = "http://192.168.81.13:3000";
+import axios from 'axios';
 
-const Chat = () => {
-    const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState([]);
-    const [userId, setUserId] = useState(''); // Replace with the actual user ID
-    const [conversationId, setConversationId] = useState(''); // Replace with the actual conversation ID
-    const [userList, setUserlist] = useState([{ Userid: 'sfakkflskfk', socketId: 'sdgadfgd' }]);
+const URL = "http://192.168.1.5:3000";
+
+const Chat = (props) => {
+    const [receiverId, setReceiverId] = useState("");
+    const [messages, Setmessages] = useState([]);
+    const [message, setMessage] = useState("");
+    const [conversationId, setConversationId] = useState("");
+
     useEffect(() => {
         const socket = io(URL, {
             auth: {
-                Userid: userId,
+                Userid: props.user,
             }
         });
-        // Join the conversation room
-        socket.emit('joinRoom', { userId, conversationId });
 
-        // Listen for incoming messages
-        socket.on('recieveMessage', (newMessage) => {
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-        });
+        // socket.emit('joinRoom', { userId : props.user, conversationId });
 
-        // Listen for previous messages
-        socket.on('previousMessages', (previousMessages) => {
-            setMessages(previousMessages);
-        });
+        // socket.on('recieveMessage', (newMessage) => {
+        // });
 
-        // Clean up the event listeners when the component unmounts
-        return () => {
-            socket.off('recieveMessage');
-            socket.off('previousMessages');
-        };
+        // socket.on('previousMessages', (previousMessages) => {
+        //     setMessages(previousMessages);
+        // });
+
+        // return () => {
+        //     socket.off('recieveMessage');
+        //     socket.off('previousMessages');
+        // };
     }, []);
 
     const sendMessage = () => {
@@ -44,40 +42,64 @@ const Chat = () => {
                 timestamp: new Date(),
             };
 
-            // Send the message to the server
             socket.emit('sendMessages', { conversationId, message: newMessage });
 
             setMessage('');
         }
     };
 
+    const joinRoomProcess = async (user) => {
+        setReceiverId(user);
+        try {
+            console.log(`Sending request for users ${user} and ${props.user}`);
+            const response = await axios.post('http://localhost:3000/api/socketChat/chats/getconvoId', {
+                userId1: props.user,
+                userId2: user
+            });
+            //Setting the conversation id
+            setConversationId(response.data.conversationId);
+        } catch (error) {
+            console.error("Error joining room:", error);
+        }
+    }
+
     return (
-        <div style={{display : 'flex' , flexDirection : 'column', justifyContent: 'center' , alignItems : 'center'}}>
-            <div style={{display : 'flex' , justifyContent: 'center' , alignItems : 'center'}}>
-                <div style={{ border: '2px solid red' }}>
+        <div className="container-fluid vh-100 d-flex flex-column">
+            <h1>Reciever : {receiverId}</h1>
+            <div className="row flex-grow-1">
+                <div className="col-8 border border-danger d-flex flex-column overflow-auto">
                     {messages.map((msg, index) => (
-                        <div key={index}>
-                            <span>{msg.sender_id}: </span>
+                        <div key={index} className="p-2">
+                            <span className="font-weight-bold">{msg.sender_id}: </span>
                             <span>{msg.content}</span>
                         </div>
                     ))}
-                </div >
-                <div style={{ border: '2px solid blue', width : '700px' , height : '100%'}}>
-                    {
-                        userList.map((user, ind) => {
-                            <button key={ind}>{user.Userid}</button>
-                        })
-                    }
-                    jhj
+                </div>
+                <div className=" d-flex flex-column mt-5 col-4 border border-primary overflow-auto">
+                    {props.participants
+                        .filter(user => user !== props.user)
+                        .map((user, ind) => (
+                            <button
+                                key={ind}
+                                className="btn btn-primary m-4 btn-block text-left"
+                                onClick={() => joinRoomProcess(user)}
+                            >
+                                {user}
+                            </button>
+                        ))}
                 </div>
             </div>
-
-            <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Send</button>
+            <div className="row mt-auto">
+                <div className="col-12 d-flex p-2">
+                    <input
+                        type="text"
+                        className="form-control me-2"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <button className="btn btn-primary" onClick={sendMessage}>Send</button>
+                </div>
+            </div>
         </div>
     );
 };
