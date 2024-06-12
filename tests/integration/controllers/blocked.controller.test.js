@@ -17,9 +17,15 @@ describe("Blocked Users Controller", () => {
   let user2;
 
   before(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    await mongoose.connect(uri);
+    const uri =
+      process.env.MONGODB_URI || (await MongoMemoryServer.create()).getUri();
+
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(uri, {
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
+      });
+    }
 
     user1 = new User({
       username: "user1",
@@ -37,9 +43,25 @@ describe("Blocked Users Controller", () => {
   });
 
   after(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongoServer.stop();
+    // Disconnect from MongoDB after all tests have run
+    await mongoose.disconnect();
+  });
+
+  beforeEach(async () => {
+    await User.deleteMany({});
+    user1 = new User({
+      username: "user1",
+      email: "user1@example.com",
+      password: "password123",
+    });
+    user2 = new User({
+      username: "user2",
+      email: "user2@example.com",
+      password: "password123",
+    });
+
+    await user1.save();
+    await user2.save();
   });
 
   describe("addBlockedUser", () => {
