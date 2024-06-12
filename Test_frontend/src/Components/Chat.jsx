@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 
@@ -6,47 +6,50 @@ const URL = "http://192.168.1.5:3000";
 
 const Chat = (props) => {
     const [receiverId, setReceiverId] = useState("");
-    const [messages, Setmessages] = useState([]);
+    const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [conversationId, setConversationId] = useState("");
+    const socketRef = useRef(null);
 
     useEffect(() => {
         const socket = io(URL, {
             auth: {
-                Userid: props.user,
+                userid: props.user,
             }
         });
-
-        // socket.emit('joinRoom', { userId : props.user, conversationId });
-
-        // socket.on('recieveMessage', (newMessage) => {
-        // });
-
-        // socket.on('previousMessages', (previousMessages) => {
-        //     setMessages(previousMessages);
-        // });
-
-        // return () => {
-        //     socket.off('recieveMessage');
-        //     socket.off('previousMessages');
-        // };
+        socketRef.current = socket;
+        socket.on('recieveMessage', (newMessage) => {
+            setMessages((prev)=>{
+                return [...prev , newMessage]
+            })
+        });
+        socket.on('previousMessages', (previousMessages) => {
+            console.log(`Previous messages are here.. at ${props.user} side`);
+            setMessages(previousMessages);
+        });
+        return () => {
+            socket.off('recieveMessage');
+            socket.off('previousMessages');
+        };
     }, []);
 
     const sendMessage = () => {
         if (message.trim() !== '') {
             const newMessage = {
-                sender_id: userId,
-                receiver_id: '', // Replace with the receiver's ID if needed
+                sender_id: props.user,
+                receiver_id: receiverId,
                 content: message,
-                content_type: 'text',
+                content_type: 'text', 
+                content_link: null, 
                 timestamp: new Date(),
+                is_read: false, 
+                is_appropriate: true,
             };
-
-            socket.emit('sendMessages', { conversationId, message: newMessage });
-
+            socketRef.current.emit('sendMessages', { conversationId, message: newMessage });
             setMessage('');
         }
     };
+
 
     const joinRoomProcess = async (user) => {
         setReceiverId(user);
@@ -58,6 +61,8 @@ const Chat = (props) => {
             });
             //Setting the conversation id
             setConversationId(response.data.conversationId);
+            // calling the socket to joinRoom..
+            socketRef.current.emit('joinRoom', { userId: props.user, conversationId: response.data.conversationId });
         } catch (error) {
             console.error("Error joining room:", error);
         }

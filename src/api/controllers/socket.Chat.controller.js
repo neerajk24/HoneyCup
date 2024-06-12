@@ -10,12 +10,15 @@ export const getConversationid = async (req, res) => {
     try {
         console.log("here");
         let conversation = await Conversation.findOne({ participants: { $all: [userId1, userId2] } });
+        console.log("here also..");
         if (!conversation) {
             conversation = new Conversation({
                 participants: [userId1, userId2],
                 messages: []
             })
+            console.log("New convo is made....");
             await conversation.save();
+            console.log("Successfully ssavedd...");
         }
         console.log(`Conversation ID found : ${conversation._id}`);
         res.status(200).json({ conversationId: conversation._id })
