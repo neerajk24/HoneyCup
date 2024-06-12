@@ -13,11 +13,6 @@ class ChatService {
       throw new Error("Conversation not found");
     }
 
-    // Ensure message_id is present
-    if (!message.message_id) {
-      message.message_id = new mongoose.Types.ObjectId().toString();
-    }
-
     // Check if message is a file
     if (message.content_type !== "text" && message.content_link) {
       // Read the file content
@@ -95,6 +90,14 @@ class ChatService {
       throw new Error("Conversation not found");
     }
     return conversation.messages;
+  }
+
+  async getConversation(conversationId) {
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+    return conversation;
   }
 }
 
