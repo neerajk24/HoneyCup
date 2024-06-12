@@ -9,7 +9,7 @@ import chaiAsPromised from "chai-as-promised";
 import bcrypt from "bcryptjs";
 import User from "../../src/models/user.model.js";
 import dotenv from "dotenv";
-import connectDatabase from "../../src/config/database.js";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
 use(chaiAsPromised);
 const expect = _expect;
@@ -20,22 +20,32 @@ dotenv.config();
  * Describes the unit tests for the User Model.
  */
 describe("User Model", () => {
+  let mongoServer;
+
   /**
    * Sets up the test environment by connecting to the database.
    */
-  before(async function () {
-    this.timeout(10000); // Increase timeout for this hook
-
+  before(async () => {
     try {
-      // Ensure the database is connected before tests run
-      await mongoose.connect(process.env.MONGODB_URI, {});
+      mongoServer = await MongoMemoryServer.create();
+      const uri = mongoServer.getUri();
+      await mongoose.connect(uri);
       console.log("MongoDB connected successfully.");
     } catch (error) {
       console.error("Error connecting to MongoDB:", error);
     }
   });
 
-  beforeEach(async function () {
+  /**
+   * Disconnect from MongoDB and stop the server after tests.
+   */
+  after(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+    console.log("MongoDB disconnected.");
+  });
+
+  beforeEach(async () => {
     // Clear the User collection before each test
     await User.deleteMany({});
   });

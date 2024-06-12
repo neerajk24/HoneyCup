@@ -1,5 +1,8 @@
 // src/services/chats.service.js
 
+import fs from "fs";
+import path from "path";
+import mongoose from "mongoose";
 import Conversation from "../models/chats.model.js";
 import { uploadFileToAzureBlob, deleteFileById } from "./azureBlob.service.js";
 
@@ -10,22 +13,22 @@ class ChatService {
       throw new Error("Conversation not found");
     }
 
-    // Ensure message_id is present
-    if (!message.message_id) {
-      message.message_id = new mongoose.Types.ObjectId().toString();
-    }
-
     // Check if message is a file
     if (message.content_type !== "text" && message.content_link) {
-      const uploadResult = await uploadFileToAzureBlob(
-        message.content_link,
-        message.message_id
-      );
+      // Read the file content
+      const buffer = fs.readFileSync(message.content_link);
+      const fileName = path.basename(message.content_link);
+
+      // Upload the file content
+      const uploadResult = await uploadFileToAzureBlob(buffer, fileName);
+
+      // Update the message content_link with the uploaded file URL
       message.content_link = uploadResult.blobUrl;
     }
 
     conversation.messages.push(message);
-    return conversation.save();
+    await conversation.save();
+    return conversation;
   }
 
   async editMessage(conversationId, messageId, newMessage) {
@@ -34,16 +37,17 @@ class ChatService {
       throw new Error("Conversation not found");
     }
 
-    const message = conversation.messages.id(messageId);
+    const message = conversation.messages.find(
+      (msg) => msg.message_id === messageId
+    );
     if (!message) {
       throw new Error("Message not found");
     }
 
     if (newMessage.content_type !== "text" && newMessage.content_link) {
-      const uploadResult = await uploadFileToAzureBlob(
-        newMessage.content_link,
-        message.message_id
-      );
+      const buffer = fs.readFileSync(newMessage.content_link);
+      const fileName = path.basename(newMessage.content_link);
+      const uploadResult = await uploadFileToAzureBlob(buffer, fileName);
       newMessage.content_link = uploadResult.blobUrl;
       await deleteFileById(message.content_link);
     }
@@ -53,7 +57,8 @@ class ChatService {
     message.content_link = newMessage.content_link;
     message.timestamp = Date.now();
 
-    return conversation.save();
+    await conversation.save();
+    return conversation;
   }
 
   async deleteMessage(conversationId, messageId) {
@@ -62,17 +67,21 @@ class ChatService {
       throw new Error("Conversation not found");
     }
 
-    const message = conversation.messages.id(messageId);
-    if (!message) {
+    const messageIndex = conversation.messages.findIndex(
+      (msg) => msg.message_id === messageId
+    );
+    if (messageIndex === -1) {
       throw new Error("Message not found");
     }
 
-    if (message.content_type !== "text") {
-      await deleteFileById(message.content_link);
+    if (conversation.messages[messageIndex].content_type !== "text") {
+      await deleteFileById(conversation.messages[messageIndex].content_link);
     }
 
-    message.remove();
-    return conversation.save();
+    conversation.messages.splice(messageIndex, 1);
+    await conversation.save();
+
+    return conversation;
   }
 
   async getMessages(conversationId) {
@@ -81,6 +90,14 @@ class ChatService {
       throw new Error("Conversation not found");
     }
     return conversation.messages;
+  }
+
+  async getConversation(conversationId) {
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+    return conversation;
   }
 }
 

@@ -11,15 +11,52 @@ import {
   deleteFileById,
 } from "../../src/services/azureBlob.service.js";
 import { BlobServiceClient } from "@azure/storage-blob";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
+dotenv.config();
+
+// Define the MongoDB URI
+const dbUri = process.env.MONGODB_URI;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Helper to create a buffer for test
+async function getTestBuffer(filePath) {
+  const fullPath = resolve(__dirname, filePath); // Resolve the file path
+  return fs.readFile(fullPath);
+}
+
 describe("Azure Blob Service", () => {
-  // Mock instances
   let blobServiceClientMock, containerClientMock, blockBlobClientMock;
 
-  beforeEach(() => {
+  before(async () => {
+    // Check if mongoose is connected, if not, connect using dbUri
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(dbUri, {
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
+      });
+    }
+  });
+
+  after(async () => {
+    // Disconnect from MongoDB after all tests have run
+    await mongoose.disconnect();
+  });
+
+  beforeEach(async () => {
+    // Clear the mocks
+    sinon.restore();
+
+    // Check if mongoose is connected, if not, connect using dbUri
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(dbUri, {
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
+      });
+    }
+
     blobServiceClientMock = sinon.createStubInstance(BlobServiceClient);
     containerClientMock = {
       createIfNotExists: sinon.stub(),
@@ -39,13 +76,9 @@ describe("Azure Blob Service", () => {
     containerClientMock.getBlockBlobClient.returns(blockBlobClientMock);
   });
 
-  afterEach(() => {
-    sinon.restore();
-  });
-
   it("should upload a file successfully", async () => {
     // Test data
-    const buffer = await fs.readFile(resolve(__dirname, "test_uploaded.txt"));
+    const buffer = await getTestBuffer("test_uploaded.txt");
     const blobName = "test_uploaded.txt";
     blockBlobClientMock.uploadData.resolves();
     blockBlobClientMock.url =
@@ -72,7 +105,7 @@ describe("Azure Blob Service", () => {
 
   it("should handle file upload error", async () => {
     // Test data
-    const buffer = await fs.readFile(resolve(__dirname, "test_uploaded.txt"));
+    const buffer = await getTestBuffer("test_uploaded.txt");
     const blobName = "test_uploaded.txt";
     blockBlobClientMock.uploadData.rejects(new Error("Upload error"));
 
