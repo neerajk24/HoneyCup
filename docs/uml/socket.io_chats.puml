@@ -1,0 +1,80 @@
+@startuml
+
+!define RECTANGLE class
+skinparam rectangle {
+  BackgroundColor<<Service>> PaleGreen
+  BackgroundColor<<Model>> LightBlue
+  BackgroundColor<<Controller>> LightSalmon
+  BackgroundColor<<Socket>> LightGoldenrodYellow
+}
+
+RECTANGLE Conversation {
+  +participants: [String]
+  +messages: [Message]
+}
+
+RECTANGLE Message {
+  +message_id: String
+  +sender_id: String
+  +receiver_id: String
+  +content: String
+  +content_type: String
+  +content_link: String
+  +timestamp: Date
+  +is_read: Boolean
+  +is_appropriate: Boolean
+}
+
+RECTANGLE ChatController <<Controller>> {
+  +sendMessage(req, res)
+  +getMessages(req, res)
+  +editMessage(req, res)
+  +deleteMessage(req, res)
+  +getMessage(req, res)
+  +getConversationid(req, res)
+  +getUsernames(req, res)
+}
+
+RECTANGLE ChatService <<Service>> {
+  +sendMessage(conversationId, message)
+  +editMessage(conversationId, messageId, newMessage)
+  +deleteMessage(conversationId, messageId)
+  +getMessages(conversationId)
+  +getConversation(conversationId)
+}
+
+RECTANGLE AzureBlobService <<Service>> {
+  +uploadFileToAzureBlob(buffer, fileName)
+  +deleteFileById(content_link)
+}
+
+RECTANGLE SocketController <<Socket>> {
+  +ChatSocket(io)
+}
+
+RECTANGLE ConnectedSockets <<Socket>> {
+  -socketId: String
+  -Userid: String
+}
+
+interface IO {
+  +on(event, callback)
+  +emit(event, data)
+  +to(room).emit(event, data)
+  +join(room)
+}
+
+IO <|-- SocketController
+
+ChatController ..> ChatService : Uses
+ChatService ..> Conversation : Uses
+ChatService ..> Message : Uses
+ChatService ..> AzureBlobService : Uses
+
+SocketController ..> ChatService : Uses
+SocketController ..> ConnectedSockets : Uses
+SocketController ..> Conversation : Uses
+
+Conversation o-- Message
+
+@enduml
