@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const messageSchema = new Schema({
-  // Removed the messageId here because it will be automatically generated.
+  message_id: { type: String, required: true, unique: true },
   sender_id: { type: String, required: true },
   receiver_id: { type: String, required: true },
   content: { type: String, default: null },
@@ -24,9 +24,19 @@ messageSchema.virtual("detected_content_type").get(function () {
 });
 
 const conversationSchema = new Schema({
-  participants: [{ type: String, required: true }],
+  participants: {
+    type: [{ type: String }],
+    required: [true, "Participants are required"],
+    validate: {
+      validator: function (val) {
+        return val.length > 0;
+      },
+      message: "Participants cannot be empty",
+    },
+  },
   messages: [messageSchema],
 });
 
 const Conversation = mongoose.model("Conversation", conversationSchema);
+
 export default Conversation;
