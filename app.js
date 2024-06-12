@@ -22,6 +22,7 @@ import { createServer } from 'http';  // Changed import
 import { Server } from 'socket.io';  // Changed import
 import { ChatSocket } from './src/Sockets/chat.socket.js';
 
+const URL = 'http://localhost:5173';
 const createApp = () => {
     const app = express();
 
@@ -65,7 +66,14 @@ const app = createApp();
 
 const PORT = process.env.PORT || 3000;
 const server = createServer(app);  // Changed line
-const io = new Server(server);  // Changed line
+const io = new Server(server, {
+    cors: {
+        origin: URL, // Replace with your React app URL
+        methods: ['GET', 'POST'], // Add any other HTTP methods you need
+        allowedHeaders: ['Content-Type'], // Add any other headers you need
+        credentials: true, // Allow sending credentials (cookies, authorization headers, etc.)
+    },
+});
 ChatSocket(io);
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

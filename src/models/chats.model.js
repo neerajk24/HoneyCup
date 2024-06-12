@@ -30,5 +30,4 @@ const conversationSchema = new Schema({
 });
 
 const Conversation = mongoose.model("Conversation", conversationSchema);
-
 export default Conversation;

@@ -37,7 +37,7 @@ export const ChatSocket = (io) => {
         })
         socket.on('disconnect', ()=>{
             ConnectedSockets = ConnectedSockets.filter((soc)=>soc.Userid!==Userid);
-            console.log(socket.id + "disconnected");
+            console.log(socket.id + " disconnected");
         })
     })
 }
