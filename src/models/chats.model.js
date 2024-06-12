@@ -24,7 +24,6 @@ messageSchema.virtual("detected_content_type").get(function () {
 });
 
 const conversationSchema = new Schema({
-  _id: { type: String, required: true, unique: true },
   participants: [{ type: String, required: true }],
   messages: [messageSchema],
 });
