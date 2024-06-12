@@ -1,30 +1,32 @@
-import { sendMessage } from "../../src/services/chat.service.js";
-import Message from "../../src/models/message.model.js";
-import User from "../../src/models/user.model.js";
-import bcrypt from "bcryptjs";
-import sinon from "sinon";
+// tests/services/chat.service.test.js
+
 import { expect } from "chai";
+import sinon from "sinon";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt"; // Import bcrypt
+import User from "../../src/models/user.model.js";
+import Message from "../../src/models/message.model.js";
+import { sendMessage } from "../../src/services/chat.service.js";
 
 dotenv.config();
 
 const dbUri = process.env.MONGODB_URI;
 
 describe("Chat Service Test case", () => {
-  // sendMessage
   let senderId;
   let recipientId;
 
-  before(async function () {
-    this.timeout(30000); // Increase timeout for before hook
-
+  before(async () => {
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(dbUri, {
-        // Deprecated options are removed
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
       });
-      console.log("MongoDB connected successfully.");
     }
+
+    // Clear users collection before inserting test data
+    await User.deleteMany({});
 
     const userData = [
       {
@@ -40,31 +42,27 @@ describe("Chat Service Test case", () => {
     ];
 
     const users = await User.insertMany(userData);
+    senderId = users[0]._id;
+    recipientId = users[1]._id;
+  });
 
-    for (const user of users) {
-      user.chattingWith = users
-        .filter((u) => !u._id.equals(user._id))
-        .map((u) => ({ user: u._id, continueChat: false }));
-      await user.save();
+  beforeEach(async () => {
+    console.log("MongoDB connection state:", mongoose.connection.readyState);
+    if (mongoose.connection.readyState !== 1) {
+      console.log("Connecting to MongoDB...");
+      await mongoose.connect(dbUri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log("MongoDB connected!");
     }
-
-    const sender = await User.findOne({ username: "user1" }).select("_id");
-    const recipient = await User.findOne({ username: "user2" }).select("_id");
-
-    if (!sender || !recipient) {
-      throw new Error("Sender or recipient not found");
-    }
-
-    senderId = sender._id;
-    recipientId = recipient._id;
   });
 
   afterEach(() => {
     sinon.restore();
   });
 
-  after(async function () {
-    this.timeout(30000); // Increase timeout for after hook
+  after(async () => {
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
