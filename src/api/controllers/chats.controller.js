@@ -26,11 +26,11 @@ const getMessages = async (req, res) => {
 
 const editMessage = async (req, res) => {
   try {
-    const newContent = req.body.content;
+    const newMessage = req.body;
     const updatedConversation = await chatService.editMessage(
       req.params.conversationId,
       req.params.messageId,
-      newContent
+      newMessage
     );
     res.status(200).json(updatedConversation);
   } catch (err) {
@@ -50,18 +50,28 @@ const deleteMessage = async (req, res) => {
   }
 };
 
-const getMessage = async (req, res) => {
+async function getMessage(req, res) {
   try {
-    const conversation = req.conversation;
-    const message = conversation.messages.id(req.params.messageId);
+    const { conversationId, messageId } = req.params;
+    const conversation = await chatService.getConversation(conversationId);
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
+    const message = conversation.messages.find(
+      (msg) => msg._id.toString() === messageId // Compare ObjectIDs as strings
+    );
+
     if (!message) {
       return res.status(404).json({ message: "Message not found" });
     }
-    res.status(200).json(message);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+
+    return res.status(200).json(message);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
 export default {
   sendMessage,
