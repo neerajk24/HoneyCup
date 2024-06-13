@@ -225,6 +225,7 @@ axios.get('https://ipgeolocation.abstractapi.com/v1/?api_key=f93d705ee22b4044b62
     .catch(error => {
         console.log(error);
     });
+```
 
 ## 9. IPinfo Geolocation API
 
