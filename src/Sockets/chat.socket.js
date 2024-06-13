@@ -30,7 +30,6 @@ export const ChatSocket = (io) => {
         socket.on('sendMessages', async ({ conversationId, message }) => {
             console.log(`${conversationId} is trying to send ${message}`);  
             io.to(conversationId).emit('recieveMessage', message);
-
             // Convert the conversationId string to an ObjectId
             const conversationObjectId = new mongoose.Types.ObjectId(conversationId);
 

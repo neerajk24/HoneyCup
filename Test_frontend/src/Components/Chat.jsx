@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 
-const URL = "http://192.168.1.5:3000";
+const URL = "http://localhost:3000";
 
 const Chat = (props) => {
     const [receiverId, setReceiverId] = useState("");
