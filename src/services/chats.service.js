@@ -5,6 +5,7 @@ import path from "path";
 import mongoose from "mongoose";
 import Conversation from "../models/chats.model.js";
 import { uploadFileToAzureBlob, deleteFileById } from "./azureBlob.service.js";
+import NotificationService from "./notification.service.js";
 
 class ChatService {
   async sendMessage(conversationId, message) {
@@ -28,6 +29,10 @@ class ChatService {
 
     conversation.messages.push(message);
     await conversation.save();
+
+    // Send notification
+    await NotificationService.sendUnreadMessagesNotification(conversationId);
+
     return conversation;
   }
 
@@ -98,6 +103,17 @@ class ChatService {
       throw new Error("Conversation not found");
     }
     return conversation;
+  }
+
+  async getUnreadMessagesCount(conversationId) {
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+    const unreadCount = conversation.messages.filter(
+      (msg) => !msg.is_read
+    ).length;
+    return unreadCount;
   }
 }
 
