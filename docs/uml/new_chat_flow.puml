@@ -1,0 +1,45 @@
+@startuml
+actor User1 as U1
+actor User2 as U2
+participant "Socket.IO Server" as SIO
+participant "SocketController" as SC
+participant "ChatService" as CS
+participant "AzureBlobService" as ABS
+participant "Conversation Model" as CM
+participant "ConnectedSockets" as CSockets
+
+U1 -> SIO: Connect
+SIO -> CSockets: Add User1 to ConnectedSockets
+U2 -> SIO: Connect
+SIO -> CSockets: Add User2 to ConnectedSockets
+
+U1 -> SIO: Request New Conversation (userId1, userId2)
+SIO -> SC: getConversationId (userId1, userId2)
+SC -> CM: Find Conversation (participants: [userId1, userId2])
+CM --> SC: No Conversation Found
+SC -> CM: Create New Conversation (participants: [userId1, userId2])
+CM --> SC: Return New Conversation (conversationId)
+SC --> SIO: Return New Conversation (conversationId)
+SIO -> U1: Emit conversationId
+
+U1 -> SIO: Join Room (conversationId)
+SIO -> CM: Find Conversation by Id
+CM --> SIO: Return Conversation
+SIO -> U1: Emit previousMessages (empty)
+
+U1 -> SIO: Send Image (img.png)
+SIO -> SC: Handle SendMessage (conversationId, img.png)
+SC -> CS: Process Message (conversationId, img.png)
+CS -> ABS: Upload img.png
+ABS --> CS: Return Image URL
+CS -> CM: Save Message (Image URL)
+CM --> CS: Updated Conversation
+CS --> SC: Updated Conversation
+SC --> SIO: Acknowledge SendMessage
+SIO -> U2: Emit ReceiveMessage (Image URL)
+
+U1 -> SIO: Disconnect
+SIO -> CSockets: Remove User1 from ConnectedSockets
+U2 -> SIO: Disconnect
+SIO -> CSockets: Remove User2 from ConnectedSockets
+@enduml

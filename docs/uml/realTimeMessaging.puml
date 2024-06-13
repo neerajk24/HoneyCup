@@ -1,0 +1,27 @@
+@startuml
+actor User
+
+participant "Client (React)" as Client
+participant "Socket.io Server" as Server
+participant "Database (MongoDB)" as DB
+
+User -> Client: Opens chat interface
+Client -> Server: Connects with userid
+Server -> Server: Stores socket id and userid
+
+Client -> Server: joinRoom(userId, conversationId)
+Server -> DB: Fetch conversation by conversationId
+DB -> Server: Returns conversation with messages
+Server -> Client: previousMessages(messages)
+
+Client -> Server: sendMessages(conversationId, message)
+Server -> Server: Broadcasts message to conversationId room
+Server -> DB: Finds conversation by conversationId
+DB -> Server: Saves message to conversation
+
+Server -> Client: recieveMessage(newMessage)
+Client -> User: Displays new message
+
+Client -> Server: Disconnect
+Server -> Server: Removes socket id from ConnectedSockets
+@enduml
