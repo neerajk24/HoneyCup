@@ -89,6 +89,29 @@ Socket IO is used in 2 parts in our application:
 
 These are the socket listeners and emitters used in the backend and frontend to handle real-time messaging functionality in the dating app.
 
+## Routes (frontend):
+There routes are present so that frontend can fetch the appropriate data required for communication between 2 users :
+
+1. **getconvoId (post)** : This route is used in order to get the conversation id from the backend between the 2 users. It takes 2 parameters:
+
+   - userId1 : unique username of the sender
+   - userId2 : unique username of the reciever
+
+   **Response** : It is going to respond with a unique conversationid(string) between the 2 users.
+   ```json
+   {
+    "conversationId": "6669a7f3d60161f5e3d21yu2"
+   }
+   ```
+   **Request** :
+   ```
+   const response = await axios.post('http://localhost:3000/api/socketChat/chats/getconvoId', {
+        userId1: props.user,
+        userId2: user
+   });
+   ```
+  
+
 
 ## Working of the application:
 
