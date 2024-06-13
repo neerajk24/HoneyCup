@@ -226,4 +226,30 @@ axios.get('https://ipgeolocation.abstractapi.com/v1/?api_key=f93d705ee22b4044b62
         console.log(error);
     });
 
+## 9. IPinfo Geolocation API
+
+1. **IPinfo API Key**
+
+   - The token Rajat got: `b9a126c1a8347a`.
+   - Example API request: [https://ipinfo.io/103.176.156.10?token=b9a126c1a8347a](https://ipinfo.io/103.176.156.10?token=b9a126c1a8347a).
+   - Sample response:
+     ```json
+     {
+       "ip": "103.176.156.10",
+       "city": "Pune",
+       "region": "Maharashtra",
+       "country": "IN",
+       "loc": "18.5196,73.8554",
+       "org": "AS147243 TREELINK NETWORK PVT LTD",
+       "postal": "411001",
+       "timezone": "Asia/Kolkata"
+     }
+     ```
+   - Location longitude and latitude: `"loc": "18.5196,73.8554"`.
+
+2. **Explore IPinfo Geolocation API**
+
+   - Visit [IPinfo Geolocation API](https://ipinfo.io/products/ip-geolocation-api).
+   - Click on the **Dashboard**.
+   - Get your token and view pricing, documentation, etc., by navigating through the left sidebar.
 
