@@ -196,3 +196,34 @@ By following these steps, you can ensure that your GitHub Actions workflows can 
 3. **Guidance Needed**
    - Further guidance is needed as the process requires payment to proceed.
 
+## 8. Abstract API Geolocation Service
+
+### Getting Started
+
+1. **Visit Abstract API**
+   - Go to [Abstract API](https://www.abstractapi.com/api/ip-geolocation-api).
+   - Login or sign up if you don't have an account.
+
+2. **Access Geolocation API**
+   - Once logged in, click on "Geolocation" in the leftmost card in the UI at the top from the three cards shown.
+   - This will direct you to the API documentation page and provide your API key.
+
+### Free Tier Details
+
+- Abstract API offers 1,000 free requests. (It is not clear if this is per month or year, so verify according to your needs.)
+
+### Example Code
+
+- Use the following Node.js code to make a request and retrieve the user's location data:
+
+```bash
+const axios = require('axios');
+axios.get('https://ipgeolocation.abstractapi.com/v1/?api_key=f93d705ee22b4044b62dde4dcbdfaa8e&ip_address=103.176.156.10')
+    .then(response => {
+        console.log(response.data);
+    })
+    .catch(error => {
+        console.log(error);
+    });
+
+
