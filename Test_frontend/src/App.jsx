@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 function App() {
   const [participants, Setparticipants] = useState([]);
   const [user, Setuser] = useState("");
+  const [unreadMsg , setUnreadmsg]  = useState([]);
   const setusers = (people) => {
     Setparticipants(people);
   }
@@ -18,9 +19,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Users setusers={setusers} participants={participants} Setusername={Setusername} />
+        <Route path="/" element={<Users setusers={setusers} participants={participants} Setusername={Setusername} setUnreadmsg={setUnreadmsg}/>
         }/>
-        <Route path="/chatNow" element={<Chat participants={participants} user={user}/>} />
+        <Route path="/chatNow" element={<Chat participants={participants} user={user} unreadMsg={unreadMsg} setUnreadmsg={setUnreadmsg}/>} />
       </Routes>
     </Router>
   );

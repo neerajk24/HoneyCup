@@ -1,5 +1,7 @@
 import Conversation from "../models/chats.model.js";
 import mongoose from 'mongoose';
+import axios from 'axios';
+
 
 let ConnectedSockets = [
     // {Userid , socketId}
@@ -16,7 +18,6 @@ export const ChatSocket = (io) => {
 
         socket.on('joinRoom', async ({ userId, conversationId }) => {
             console.log(`User ${userId} trying to join the room ${conversationId}`);
-
             socket.join(conversationId);
             // Convert the conversationId string to an ObjectId
             const conversationObjectId = new mongoose.Types.ObjectId(conversationId);
@@ -28,11 +29,16 @@ export const ChatSocket = (io) => {
         });
 
         socket.on('sendMessages', async ({ conversationId, message }) => {
-            console.log(`${conversationId} is trying to send ${message}`);  
+            console.log(`${conversationId} is trying to send ${message}`);
             io.to(conversationId).emit('recieveMessage', message);
             // Convert the conversationId string to an ObjectId
             const conversationObjectId = new mongoose.Types.ObjectId(conversationId);
 
+            // Check if both users are online in the room
+            const usersInRoom = io.sockets.adapter.rooms.get(conversationId);
+            const isReceiverOnline = usersInRoom && usersInRoom.size === 2;
+            // Set is_read to true if both users are online
+            message.is_read = isReceiverOnline;
             const chat = await Conversation.findOne({ _id: conversationObjectId });
             if (chat) {
                 chat.messages.push(message);
@@ -40,8 +46,19 @@ export const ChatSocket = (io) => {
             } else {
                 console.log("Error in sending messages Chat not found!");
             }
-            //Case of chat not present is excluded right now.
-        })
+            //send the new unreadMsg to the disconnected User
+            if (!isReceiverOnline) {
+                console.log("oops user hasn't seen messages");
+                const SOCKET = ConnectedSockets.find((soc) => soc.Userid === message.receiver_id);
+                if(SOCKET){
+                    console.log("unseen user found");
+                    const response = await axios.get(`http://localhost:3000/api/socketChat/chats/getUnreadmsg/${message.receiver_id}`);
+                    io.to(SOCKET.socketId).emit('unreadMessages',response.data);
+                    console.log("Unread data send to the user");
+                }
+            }
+
+        });
 
         socket.on('disconnect', () => {
             ConnectedSockets = ConnectedSockets.filter((soc) => soc.Userid !== Userid);

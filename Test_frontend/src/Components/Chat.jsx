@@ -12,6 +12,7 @@ const Chat = (props) => {
     const socketRef = useRef(null);
 
     useEffect(() => {
+        console.log(props.user);
         const socket = io(URL, {
             auth: {
                 userid: props.user,
@@ -19,19 +20,26 @@ const Chat = (props) => {
         });
         socketRef.current = socket;
         socket.on('recieveMessage', (newMessage) => {
-            setMessages((prev)=>{
-                return [...prev , newMessage]
+            setMessages((prev) => {
+                return [...prev, newMessage]
             })
         });
         socket.on('previousMessages', (previousMessages) => {
             console.log(`Previous messages are here.. at ${props.user} side`);
             setMessages(previousMessages);
         });
+
+        socket.on('unreadMessages', (unreadMessages) => {
+            console.log("UnreadMessageCameWOOO");
+            props.setUnreadmsg(unreadMessages);
+        })
         return () => {
+            socket.disconnect(); // Disconnect the socket when component unmounts
             socket.off('recieveMessage');
             socket.off('previousMessages');
+            socket.off('unreadMessages');
         };
-    }, []);
+    }, [props.user]);
 
     const sendMessage = () => {
         if (message.trim() !== '') {
@@ -39,17 +47,28 @@ const Chat = (props) => {
                 sender_id: props.user,
                 receiver_id: receiverId,
                 content: message,
-                content_type: 'text', 
-                content_link: null, 
+                content_type: 'text',
+                content_link: null,
                 timestamp: new Date(),
-                is_read: false, 
+                is_read: false,
                 is_appropriate: true,
             };
             socketRef.current.emit('sendMessages', { conversationId, message: newMessage });
             setMessage('');
         }
     };
-
+    async function markMessageRead(user, convoId) {
+        try {
+            const response = await axios.post('http://localhost:3000/api/socketChat/chats/markMsgRead', {
+                senderId: user,
+                conversationId: convoId
+            });
+            props.setUnreadmsg(prevUnreadMsg => prevUnreadMsg.filter(msg => msg.sender !== user));
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const joinRoomProcess = async (user) => {
         setReceiverId(user);
@@ -63,6 +82,8 @@ const Chat = (props) => {
             setConversationId(response.data.conversationId);
             // calling the socket to joinRoom..
             socketRef.current.emit('joinRoom', { userId: props.user, conversationId: response.data.conversationId });
+            //Mark the messages as read.
+            markMessageRead(user, response.data.conversationId);
         } catch (error) {
             console.error("Error joining room:", error);
         }
@@ -70,28 +91,33 @@ const Chat = (props) => {
 
     return (
         <div className="container-fluid vh-100 d-flex flex-column">
-            <h1>Reciever : {receiverId}</h1>
+            <h1>Receiver: {receiverId}</h1>
             <div className="row flex-grow-1">
-                <div className="col-8 border border-danger d-flex flex-column overflow-auto">
-                    {messages.map((msg, index) => (
-                        <div key={index} className="p-2">
-                            <span className="font-weight-bold">{msg.sender_id}: </span>
-                            <span>{msg.content}</span>
-                        </div>
-                    ))}
+                <div className="col-8 border border-danger d-flex flex-column">
+                    <div className="message-container overflow-auto" style={{ height: '600px' }}>
+                        {messages.map((msg, index) => (
+                            <div key={index} className="p-2">
+                                <span className="font-weight-bold">{msg.sender_id}: </span>
+                                <span>{msg.content}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <div className=" d-flex flex-column mt-5 col-4 border border-primary overflow-auto">
+                <div className="d-flex flex-column mt-5 col-4 border border-primary overflow-auto">
                     {props.participants
                         .filter(user => user !== props.user)
-                        .map((user, ind) => (
-                            <button
-                                key={ind}
-                                className="btn btn-primary m-4 btn-block text-left"
-                                onClick={() => joinRoomProcess(user)}
-                            >
-                                {user}
-                            </button>
-                        ))}
+                        .map((user, ind) => {
+                            const unreadMsgCount = props.unreadMsg.find(msg => msg.sender === user)?.count || 0;
+                            return (
+                                <button
+                                    key={ind}
+                                    className="btn btn-primary m-4 btn-block text-left"
+                                    onClick={() => joinRoomProcess(user)}
+                                >
+                                    {user} {unreadMsgCount > 0 && <span className="badge bg-danger ms-2">{unreadMsgCount}</span>}
+                                </button>
+                            );
+                        })}
                 </div>
             </div>
             <div className="row mt-auto">

@@ -16,7 +16,10 @@ export default function Users(props) {
         fetchUsernames();
     }, []); // Empty dependency array means this effect runs once after the initial render
 
-    const changeUsername = (name) => {
+    const changeUsername = async(name) => {
+        const response = await axios.get(`http://localhost:3000/api/socketChat/chats/getUnreadmsg/${name}`);
+        console.log(response);
+        props.setUnreadmsg(response.data);
         props.Setusername(name);
     }
     const navigate = useNavigate();
