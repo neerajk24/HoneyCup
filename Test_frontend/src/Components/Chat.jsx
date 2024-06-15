@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPaperclip } from '@fortawesome/free-solid-svg-icons';
+import { BlobServiceClient } from "@azure/storage-blob";
 
 const URL = "http://localhost:3000";
 
@@ -34,7 +37,7 @@ const Chat = (props) => {
             props.setUnreadmsg(unreadMessages);
         })
         return () => {
-            socket.disconnect(); // Disconnect the socket when component unmounts
+            socket.disconnect();
             socket.off('recieveMessage');
             socket.off('previousMessages');
             socket.off('unreadMessages');
@@ -88,6 +91,51 @@ const Chat = (props) => {
             console.error("Error joining room:", error);
         }
     }
+    const fileInputRef = useRef(null);
+
+    const uploadToBlob = async (file) => {
+        const URL = import.meta.env.VITE_API_URL;
+        const blobServiceClient = new BlobServiceClient(URL);
+        const containerClient = blobServiceClient.getContainerClient("azure-filearchive");
+        const blobName = `${Date.now()}-${file.name}`;
+        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+        try {
+            await blockBlobClient.uploadData(file, {
+                blockSize: 4 * 1024 * 1024,
+                concurrency: 20,
+                onProgress: (ev) => console.log(`Uploaded ${ev.loadedBytes} bytes`)
+            });
+
+            return blockBlobClient.url;
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
+
+    const handleFileSelect = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const fileUrl = await uploadToBlob(file);
+            if (fileUrl) {
+                console.log(fileUrl);
+                sendFileMessage(fileUrl, file.type);
+            }
+        }
+    };
+
+    const sendFileMessage = (fileUrl, fileType) => {
+        const newMessage = {
+            sender_id: props.user,
+            receiver_id: receiverId,
+            content: fileUrl,
+            content_type: fileType.startsWith('image/') ? 'image' : 'file',
+            content_link: fileUrl,
+            timestamp: new Date(),
+            is_read: false,
+            is_appropriate: true,
+        };
+        socketRef.current.emit('sendMessages', { conversationId, message: newMessage });
+    };
 
     return (
         <div className="container-fluid vh-100 d-flex flex-column">
@@ -98,7 +146,13 @@ const Chat = (props) => {
                         {messages.map((msg, index) => (
                             <div key={index} className="p-2">
                                 <span className="font-weight-bold">{msg.sender_id}: </span>
-                                <span>{msg.content}</span>
+                                {msg.content_type === 'text' ? (
+                                    <span>{msg.content}</span>
+                                ) : (
+                                    <a href={msg.content} target="_blank" rel="noopener noreferrer">
+                                        {msg.content_type === 'image' ? 'Image' : 'File'}
+                                    </a>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -122,13 +176,28 @@ const Chat = (props) => {
             </div>
             <div className="row mt-auto">
                 <div className="col-12 d-flex p-2">
-                    <input
-                        type="text"
-                        className="form-control me-2"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                    />
-                    <button className="btn btn-primary" onClick={sendMessage}>Send</button>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control me-2"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="Type your message..."
+                        />
+                        <button className="btn btn-primary" onClick={sendMessage}>Send</button>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleFileSelect}
+                        />
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => fileInputRef.current.click()}
+                        >
+                            <FontAwesomeIcon icon={faPaperclip} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

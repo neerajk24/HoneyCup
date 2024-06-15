@@ -7,7 +7,7 @@ const messageSchema = new Schema({
   sender_id: { type: String, required: true },
   receiver_id: { type: String, required: true },
   content: { type: String, default: null },
-  content_type: { type: String, enum: ["text", "file"], required: true },
+  content_type: { type: String, enum: ["text", "file","image"], required: true },
   content_link: { type: String, default: null },
   timestamp: { type: Date, default: Date.now },
   is_read: { type: Boolean, default: false },
