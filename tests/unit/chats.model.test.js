@@ -3,18 +3,33 @@
 import mongoose from "mongoose";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { MongoMemoryServer } from "mongodb-memory-server";
 import Conversation from "../../src/models/chats.model.js";
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 
 describe("Conversation Model", () => {
+  let mongoServer;
+
   before(async () => {
-    await mongoose.connect("mongodb://localhost:27017/test", {});
+    try {
+      mongoServer = await MongoMemoryServer.create();
+      const uri = mongoServer.getUri();
+      await mongoose.connect(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log("MongoDB connected successfully.");
+    } catch (error) {
+      console.error("Error connecting to MongoDB:", error);
+    }
   });
 
   after(async () => {
-    await mongoose.connection.close();
+    await mongoose.disconnect();
+    await mongoServer.stop();
+    console.log("MongoDB disconnected.");
   });
 
   beforeEach(async () => {
