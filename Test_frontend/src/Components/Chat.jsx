@@ -12,6 +12,7 @@ const Chat = (props) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [conversationId, setConversationId] = useState("");
+    const [onlineUsers, setOnlineUsers] = useState([]);
     const socketRef = useRef(null);
 
     useEffect(() => {
@@ -31,11 +32,15 @@ const Chat = (props) => {
             console.log(`Previous messages are here.. at ${props.user} side`);
             setMessages(previousMessages);
         });
-
         socket.on('unreadMessages', (unreadMessages) => {
             console.log("UnreadMessageCameWOOO");
             props.setUnreadmsg(unreadMessages);
         })
+
+        socket.on('onlineUsers', (onlineUsers) => {
+            setOnlineUsers(onlineUsers);
+        });
+
         return () => {
             socket.disconnect();
             socket.off('recieveMessage');
@@ -162,10 +167,11 @@ const Chat = (props) => {
                         .filter(user => user !== props.user)
                         .map((user, ind) => {
                             const unreadMsgCount = props.unreadMsg.find(msg => msg.sender === user)?.count || 0;
+                            const isOnline = onlineUsers.includes(user);
                             return (
                                 <button
                                     key={ind}
-                                    className="btn btn-primary m-4 btn-block text-left"
+                                    className={`btn m-4 btn-block text-left ${isOnline ? 'btn-success' : 'btn-danger'}`}
                                     onClick={() => joinRoomProcess(user)}
                                 >
                                     {user} {unreadMsgCount > 0 && <span className="badge bg-danger ms-2">{unreadMsgCount}</span>}

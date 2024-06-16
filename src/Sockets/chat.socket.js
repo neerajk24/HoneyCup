@@ -15,7 +15,7 @@ export const ChatSocket = (io) => {
             Userid
         })
         console.log(`${Userid} got connected..`);
-
+        io.emit('onlineUsers', ConnectedSockets.map(s => s.Userid));
         socket.on('joinRoom', async ({ userId, conversationId }) => {
             console.log(`User ${userId} trying to join the room ${conversationId}`);
             socket.join(conversationId);
@@ -57,11 +57,11 @@ export const ChatSocket = (io) => {
                     console.log("Unread data send to the user");
                 }
             }
-
         });
 
         socket.on('disconnect', () => {
             ConnectedSockets = ConnectedSockets.filter((soc) => soc.Userid !== Userid);
+            io.emit('onlineUsers', ConnectedSockets.map(s => s.Userid));
             console.log(socket.id + " disconnected");
         })
     })
