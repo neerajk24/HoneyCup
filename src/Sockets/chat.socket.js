@@ -59,6 +59,18 @@ export const ChatSocket = (io) => {
             }
         });
 
+        socket.on('userTyping', ({ conversationId, receiverId, typing }) => {
+            const usersInRoom = io.sockets.adapter.rooms.get(conversationId);
+            const isReceiverOnline = usersInRoom && usersInRoom.size === 2;
+    
+            if (isReceiverOnline) {
+                const receiverSocket = ConnectedSockets.find((soc) => soc.Userid === receiverId);
+                if (receiverSocket) {
+                    io.to(receiverSocket.socketId).emit('typing', typing);
+                }
+            }
+        });
+
         socket.on('disconnect', () => {
             ConnectedSockets = ConnectedSockets.filter((soc) => soc.Userid !== Userid);
             io.emit('onlineUsers', ConnectedSockets.map(s => s.Userid));

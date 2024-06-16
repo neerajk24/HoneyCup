@@ -14,6 +14,8 @@ const Chat = (props) => {
     const [conversationId, setConversationId] = useState("");
     const [onlineUsers, setOnlineUsers] = useState([]);
     const socketRef = useRef(null);
+    const [isTyping, setIsTyping] = useState(false);
+    const typingTimeoutRef = useRef(null);
 
     useEffect(() => {
         console.log(props.user);
@@ -41,11 +43,17 @@ const Chat = (props) => {
             setOnlineUsers(onlineUsers);
         });
 
+        socket.on('typing', (typing) => {
+            setIsTyping(typing);
+        });
+
         return () => {
             socket.disconnect();
             socket.off('recieveMessage');
             socket.off('previousMessages');
             socket.off('unreadMessages');
+            socket.off('typing');
+            socket.off('onlineUsers');
         };
     }, [props.user]);
 
@@ -142,9 +150,25 @@ const Chat = (props) => {
         socketRef.current.emit('sendMessages', { conversationId, message: newMessage });
     };
 
+    const keyType = (e) => {
+        setMessage(e.target.value);
+        socketRef.current.emit('userTyping', { conversationId, receiverId, typing: true });
+
+        // Clear any existing timeout
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+
+        // Set a new timeout
+        typingTimeoutRef.current = setTimeout(() => {
+            socketRef.current.emit('userTyping', { conversationId, receiverId, typing: false });
+        }, 2000); // Stop typing indicator after 2 seconds of inactivity
+    };
+
     return (
         <div className="container-fluid vh-100 d-flex flex-column">
             <h1>Receiver: {receiverId}</h1>
+            {isTyping && <div className="text-muted">User is typing...</div>}
             <div className="row flex-grow-1">
                 <div className="col-8 border border-danger d-flex flex-column">
                     <div className="message-container overflow-auto" style={{ height: '600px' }}>
@@ -187,7 +211,7 @@ const Chat = (props) => {
                             type="text"
                             className="form-control me-2"
                             value={message}
-                            onChange={(e) => setMessage(e.target.value)}
+                            onChange={(e) => keyType(e)}
                             placeholder="Type your message..."
                         />
                         <button className="btn btn-primary" onClick={sendMessage}>Send</button>
