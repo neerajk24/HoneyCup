@@ -4,26 +4,20 @@ import { expect } from "chai";
 import * as authService from "../../src/services/auth.service.js";
 import bcrypt from "bcryptjs";
 import User from "../../src/models/user.model.js";
-import connectDatabase from "../../src/config/database.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-/**
- * Test suite for the AuthService module.
- */
 describe("AuthService", function () {
   this.timeout(60000); // Increase timeout for all tests in this suite
 
   before(async function () {
     this.timeout(60000); // Increase timeout for this hook
-
     try {
-      // Ensure the database is connected before tests run
       await mongoose.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true, // for removing warning
-        useUnifiedTopology: true, // for removing warning
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
       });
       console.log("MongoDB connected successfully.");
     } catch (error) {
@@ -32,25 +26,34 @@ describe("AuthService", function () {
   });
 
   beforeEach(async function () {
-    // Clear the User collection before each test
-    await User.deleteMany({});
+    this.timeout(60000); // Increase timeout for this hook
+    try {
+      console.log("Deleting all users before each test...");
+      await User.deleteMany({});
+      console.log("Users deleted successfully.");
+    } catch (error) {
+      console.error("Error in beforeEach hook:", error);
+    }
   });
 
   after(async function () {
-    await mongoose.disconnect();
+    this.timeout(60000); // Increase timeout for this hook
+    try {
+      await mongoose.disconnect();
+    } catch (error) {
+      console.error("Error in after hook:", error);
+    }
   });
 
-  // 1. Testing: should authenticate a user with correct credentials
   describe("authenticateUser", () => {
-    it("should authenticate a user with correct credentials", async () => {
-      // Create a user to test with
+    it("should authenticate a user with correct credentials", async function () {
+      this.timeout(20000); // Set timeout for this test case
       const newUser = await User.create({
         username: "testUser",
         email: "user@example.com",
         password: "password",
       });
 
-      // Now attempt to authenticate
       const result = await authService.authenticateUser(
         "user@example.com",
         "password"
@@ -60,48 +63,41 @@ describe("AuthService", function () {
     });
   });
 
-  // 2. Testing: should throw an error for invalid password
   describe("AuthService - Invalid Password", () => {
-    it("should throw an error for invalid password", async () => {
-      // Create a user with hashed password
+    it("should throw an error for invalid password", async function () {
+      this.timeout(20000); // Set timeout for this test case
       const newUser = await User.create({
         username: "testUser2",
         email: "user2@example.com",
         password: bcrypt.hashSync("password", 8),
       });
 
-      // Attempt to authenticate with incorrect password
       try {
         await authService.authenticateUser(
           "user2@example.com",
           "wrongpassword"
         );
-        // If no error thrown, fail the test
         expect.fail(
           "Expected authenticateUser to throw an error for invalid password"
         );
       } catch (error) {
-        // Assertion
         expect(error.message).to.equal("Password is incorrect");
       }
     });
   });
 
-  // 3. Testing: should throw an error for user not found
   describe("AuthService - User Not Found", () => {
-    it("should throw an error for user not found", async () => {
-      // Attempt to authenticate a non-existent user
+    it("should throw an error for user not found", async function () {
+      this.timeout(20000); // Set timeout for this test case
       try {
         await authService.authenticateUser(
           "nonexistentuser@example.com",
           "password"
         );
-        // If no error thrown, fail the test
         expect.fail(
           "Expected authenticateUser to throw an error for user not found"
         );
       } catch (error) {
-        // Assertion
         expect(error.message).to.equal("User not found");
       }
     });
