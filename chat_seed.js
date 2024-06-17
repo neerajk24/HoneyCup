@@ -21,8 +21,8 @@ async function createUser(username, email, password) {
 
 async function seed() {
   await mongoose.connect("mongodb://127.0.0.1:27017/honeyCup", {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   });
 
   const user1 = await createUser("user1", "user1@example.com", "password123");
