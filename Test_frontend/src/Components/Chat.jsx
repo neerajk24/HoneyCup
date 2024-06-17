@@ -12,6 +12,8 @@ const Chat = (props) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [conversationId, setConversationId] = useState("");
+    const [file, setFile] = useState(null);
+    const [fileUrl, setFileUrl] = useState("");
     const socketRef = useRef(null);
 
     useEffect(() => {
@@ -44,7 +46,7 @@ const Chat = (props) => {
         };
     }, [props.user]);
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         if (message.trim() !== '' || file) {
             let newMessage = {
                 sender_id: props.user,
@@ -114,11 +116,10 @@ const Chat = (props) => {
             console.error("Error joining room:", error);
         }
     }
-    const fileInputRef = useRef(null);
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
-        console.log('hi bro');
+        console.log('File reached handleFileChange function - file has been selected');
         if (selectedFile) {
             setFile(selectedFile);
             // Log the selected file object for debugging purposes
@@ -126,22 +127,8 @@ const Chat = (props) => {
         }
     };
 
-    // const sendFileMessage = (fileUrl, fileType) => {
-    //     const newMessage = {
-    //         sender_id: props.user,
-    //         receiver_id: receiverId,
-    //         content: fileUrl,
-    //         content_type: fileType.startsWith('image/') ? 'image' : 'file',
-    //         content_link: fileUrl,
-    //         timestamp: new Date(),
-    //         is_read: false,
-    //         is_appropriate: true,
-    //     };
-    //     socketRef.current.emit('sendMessages', { conversationId, message: newMessage });
-    // };
-
     return (
-        <div className="container-fluid vh-100 d-flex flex-column">
+        <div className="container-fluid vh-90 d-flex flex-column">
             <h1>Receiver: {receiverId}</h1>
             <div className="row flex-grow-1">
                 <div className="col-8 border border-danger d-flex flex-column">
@@ -177,28 +164,18 @@ const Chat = (props) => {
             </div>
             <div className="row mt-auto">
                 <div className="col-12 d-flex p-2">
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control me-2"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            placeholder="Type your message..."
-                        />
-                        <button className="btn btn-primary" onClick={sendMessage}>Send</button>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            onChange={handleFileSelect}
-                        />
-                        <button
-                            className="btn btn-secondary"
-                            onClick={() => fileInputRef.current.click()}
-                        >
-                            <FontAwesomeIcon icon={faPaperclip} />
-                        </button>
-                    </div>
+                    <input
+                        type="text"
+                        className="form-control me-2"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <input
+                        type="file"
+                        className="form-control me-2"
+                        onChange={handleFileChange}
+                    />
+                    <button className="btn btn-primary" onClick={sendMessage}>Send</button>
                 </div>
             </div>
         </div>
