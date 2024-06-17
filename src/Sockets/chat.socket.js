@@ -1,7 +1,7 @@
 import Conversation from "../models/chats.model.js";
 import mongoose from 'mongoose';
 import axios from 'axios';
-
+import ChatService from "../services/chats.service.js";
 
 let ConnectedSockets = [
     // {Userid , socketId}
@@ -29,7 +29,18 @@ export const ChatSocket = (io) => {
         });
 
         socket.on('sendMessages', async ({ conversationId, message }) => {
-            console.log(`${conversationId} is trying to send ${message}`);
+            console.log(
+        `${conversationId} is trying to send ${JSON.stringify(
+          message,
+          null,
+          2
+        )}`
+      );
+
+      const updatedConversation = await ChatService.sendMessage(
+        conversationId,
+        message
+      );
             io.to(conversationId).emit('recieveMessage', message);
             // Convert the conversationId string to an ObjectId
             const conversationObjectId = new mongoose.Types.ObjectId(conversationId);
