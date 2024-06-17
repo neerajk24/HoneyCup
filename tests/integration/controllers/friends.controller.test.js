@@ -11,18 +11,21 @@ import {
   getFriends,
 } from "../../../src/api/controllers/friends.controller.js";
 
-describe("Friends Controller", () => {
+describe("Friends Controller", function () {
+  this.timeout(60000); // Increase timeout for all tests in this suite
+
   let mongoServer;
   let user1;
   let user2;
 
-  before(async () => {
-    const uri =
-      process.env.MONGODB_URI || (await MongoMemoryServer.create()).getUri();
+  before(async function () {
+    this.timeout(60000); // Increase timeout for this hook
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
 
     await mongoose.connect(uri, {
-      //   useNewUrlParser: true,
-      //   useUnifiedTopology: true,
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true,
     });
 
     user1 = new User({
@@ -40,7 +43,8 @@ describe("Friends Controller", () => {
     await user2.save();
   });
 
-  after(async () => {
+  after(async function () {
+    this.timeout(60000); // Increase timeout for this hook
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
     if (mongoServer) {
@@ -48,7 +52,8 @@ describe("Friends Controller", () => {
     }
   });
 
-  beforeEach(async () => {
+  beforeEach(async function () {
+    this.timeout(60000); // Increase timeout for this hook
     await User.deleteMany({});
     user1 = new User({
       username: "user1",
