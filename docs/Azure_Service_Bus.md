@@ -64,3 +64,57 @@
 # Conclusion
 
 Azure Service Bus ensures reliable message handling with expiration and URL closure-based deletion, suitable for chat applications. Socket.io can be integrated with Azure Service Bus for real-time communication and reliable message queuing.
+
+# Updated Implementation Plan for Chat Application with Azure Blob Storage, Azure Service Bus, and SAS URL
+
+This plan outlines the components and their roles in a chat application that utilizes Azure Blob Storage for file uploads and Azure Service Bus for message queuing. The server-side logic is consolidated into a single file, `chat.socket.js`, which includes Socket.io configuration.
+
+## File Structure
+
+- **azureBlob.service.js**: Handles file uploads to Azure Blob Storage.
+- **azureServiceBus.service.js**: Manages Azure Service Bus connections and message handling.
+- **chat.jsx**: Frontend component for the chat interface using Socket.io.
+- **chat.socket.js**: Server-side setup for Socket.io, including routes for file uploads and message handling.
+
+## Component Responsibilities
+
+### azureBlob.service.js
+
+- **Role**: Handle file uploads to Azure Blob Storage.
+- **Functions**:
+  - `uploadFileToAzureBlob(fileBuffer, blobName)`: Uploads a file to Azure Blob Storage.
+  - `deleteFileById(blobName)`: Deletes a file from Azure Blob Storage.
+
+### azureServiceBus.service.js
+
+- **Role**: Manage Azure Service Bus connections and message handling.
+- **Functions**:
+  - `sendMessageToQueue(queueName, message)`: Sends a message to the specified queue.
+  - `receiveMessagesFromQueue(queueName)`: Receives messages from the specified queue.
+  - `deleteMessageFromQueue(queueName, messageId)`: Deletes a specific message from the queue.
+- **Setup**:
+  - Establish connection with Azure Service Bus.
+  - Define necessary queues for text and file messages.
+
+### chat.jsx
+
+- **Role**: Frontend chat interface using Socket.io for real-time communication.
+- **Functions**:
+  - Select file and get local path.
+  - Request SAS URL from server via Socket.io.
+  - Upload file using SAS URL.
+  - Send and receive messages via Socket.io.
+- **Workflow**:
+  - User selects a file.
+  - Request SAS URL from server.
+  - Upload file to Azure Blob Storage using SAS URL.
+  - Server returns the file URL, which is then sent to the receiver via Socket.io.
+
+### chat.socket.js
+
+- **Role**: Server-side configuration including Socket.io setup.
+- **Functions**:
+  - Setup and initialize Socket.io.
+  - Define routes for file upload using `azureBlob.service.js`.
+  - Handle real-time messaging using Socket.io.
+  - Integrate Azure Service Bus for message queuing.
