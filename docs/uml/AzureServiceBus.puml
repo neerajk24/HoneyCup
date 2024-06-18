@@ -1,0 +1,43 @@
+@startuml
+
+!define RECTANGLE_COLOR #lightblue
+!define INTERFACE_COLOR #lightgreen
+!define FILE_COLOR #lightyellow
+
+rectangle "Frontend" RECTANGLE_COLOR {
+  [chat.jsx]
+}
+
+rectangle "Server" RECTANGLE_COLOR {
+  [chat.socket.js]
+}
+
+rectangle "Services" RECTANGLE_COLOR {
+  [azureBlob.service.js]
+  [azureServiceBus.service.js]
+}
+
+rectangle "Azure Cloud" RECTANGLE_COLOR {
+  [Azure Blob Storage] FILE_COLOR
+  [Azure Service Bus] FILE_COLOR
+}
+
+[chat.jsx] -down-> [chat.socket.js] : Request SAS URL
+[chat.socket.js] -down-> [azureBlob.service.js] : Call generateSASUrl(blobName)
+[azureBlob.service.js] -up-> [chat.socket.js] : Return SAS URL
+[chat.socket.js] -up-> [chat.jsx] : Provide SAS URL
+
+[chat.jsx] -down-> [Azure Blob Storage] : Upload file using SAS URL
+
+[Azure Blob Storage] -up-> [chat.jsx] : Return file URL
+[chat.jsx] -down-> [chat.socket.js] : Send file URL
+
+[chat.socket.js] -down-> [azureServiceBus.service.js] : Call sendMessageToQueue(queueName, message)
+[azureServiceBus.service.js] -down-> [Azure Service Bus] : Send message
+
+[Azure Service Bus] -up-> [azureServiceBus.service.js] : Acknowledge message
+[azureServiceBus.service.js] -up-> [chat.socket.js] : Acknowledge message
+
+[chat.socket.js] -up-> [chat.jsx] : Acknowledge message
+
+@enduml
