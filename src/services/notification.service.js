@@ -1,13 +1,16 @@
 // src/services/notification.service.js
 
 import admin from "../config/firebaseAdmin.config.js";
-import Conversation from "../models/chats.model.js"; // Assuming your conversation model
+import Conversation from "../models/chats.model.js";
 import path from "path";
 
 class NotificationService {
   async sendUnreadMessagesNotification(conversationId) {
     try {
-      const conversation = await Conversation.findById(conversationId);
+      const conversation = await Conversation.findById(conversationId).populate(
+        "participants",
+        "fcmToken"
+      );
       if (!conversation) {
         throw new Error("Conversation not found");
       }
@@ -29,6 +32,14 @@ class NotificationService {
           ? path.basename(latestMessage.content_link)
           : latestMessage.content.substring(0, 15);
 
+      const tokens = conversation.participants
+        .map((p) => p.fcmToken)
+        .filter(Boolean);
+      if (tokens.length === 0) {
+        console.log("No FCM tokens found.");
+        return;
+      }
+
       const messagePayload = {
         notification: {
           title: "New Unread Message",
@@ -39,16 +50,17 @@ class NotificationService {
           senderId: senderId,
           messagePreview: messagePreview,
         },
-        tokens: conversation.participants.map((p) => p.fcmToken), // Assuming participants have fcmToken field
+        tokens: tokens,
       };
 
       const response = await admin.messaging().sendMulticast(messagePayload);
       console.log("Notification sent:", response);
     } catch (error) {
       console.error("Error sending notification:", error);
-      throw error; // Propagate error to handle in the calling function
+      throw error;
     }
   }
 }
 
 export default new NotificationService();
+
