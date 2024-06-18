@@ -1,0 +1,13 @@
+@startuml
+participant "User 1" as user1
+participant "Backend" as backend
+participant "Azure Server" as azure
+participant "Socket" as socket
+participant "User 2" as user2
+user1 -> backend: Requests SAS URL
+backend -> user1: Sends SAS URL
+user1 -> azure: Uploads data using SAS URL
+azure -> user1: Returns file URL
+user1 -> socket: Sends file URL
+socket -> user2: Sends file URL
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+participant "User 1" as user1
+participant "Backend" as backend
+participant "Azure Server" as azure
+participant "Socket" as socket
+participant "User 2" as user2
+user1 -> backend: Sends file path
+backend -> azure: Uploads file
+azure -> backend: Returns file URL
+backend -> user1: Sends file URL
+user1 -> socket: Forwards file URL
+socket -> user2: Sends file URL
+@enduml

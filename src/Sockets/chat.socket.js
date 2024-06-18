@@ -21,7 +21,6 @@ export const ChatSocket = (io) => {
             socket.join(conversationId);
             // Convert the conversationId string to an ObjectId
             const conversationObjectId = new mongoose.Types.ObjectId(conversationId);
-
             const chat = await Conversation.findOne({ _id: conversationObjectId });
             if (chat) {
                 socket.emit('previousMessages', chat.messages);

@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperclip } from '@fortawesome/free-solid-svg-icons';
-import { BlobServiceClient } from "@azure/storage-blob";
+import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
 
 const URL = "http://localhost:3000";
 
@@ -16,6 +16,8 @@ const Chat = (props) => {
     const socketRef = useRef(null);
     const [isTyping, setIsTyping] = useState(false);
     const typingTimeoutRef = useRef(null);
+    const fileInputRef = useRef(null);
+
 
     useEffect(() => {
         console.log(props.user);
@@ -104,21 +106,26 @@ const Chat = (props) => {
             console.error("Error joining room:", error);
         }
     }
-    const fileInputRef = useRef(null);
 
     const uploadToBlob = async (file) => {
-        const URL = import.meta.env.VITE_API_URL;
-        const blobServiceClient = new BlobServiceClient(URL);
-        const containerClient = blobServiceClient.getContainerClient("azure-filearchive");
-        const blobName = `${Date.now()}-${file.name}`;
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
         try {
+            // console.log(file);
+            // const response = await axios.get(`http://localhost:3000/api/socketChat/chats/generateSastoken`);
+            // console.log(response.data.sasUrl);
+            const blobServiceClient = new BlobServiceClient('https://kavoappstorage.blob.core.windows.net/?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-06-29T18:57:46Z&st=2024-06-18T10:57:46Z&spr=https,http&sig=hjY63u4hH11B6543PGR09qlIDi6FoWNSE5KwDGvvr9o%3D');
+            console.log("blobServiceClient created", blobServiceClient);
+            const containerClient = blobServiceClient.getContainerClient("azure-filearchive");
+            console.log(containerClient);
+            const blobName = `${Date.now()}-${file.name}`;
+            console.log(blobName);
+            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+            console.log(blockBlobClient);
             await blockBlobClient.uploadData(file, {
                 blockSize: 4 * 1024 * 1024,
                 concurrency: 20,
                 onProgress: (ev) => console.log(`Uploaded ${ev.loadedBytes} bytes`)
             });
-
+            console.log(blockBlobClient.url);
             return blockBlobClient.url;
         } catch (error) {
             console.error(error.message);
@@ -130,7 +137,6 @@ const Chat = (props) => {
         if (file) {
             const fileUrl = await uploadToBlob(file);
             if (fileUrl) {
-                console.log(fileUrl);
                 sendFileMessage(fileUrl, file.type);
             }
         }
