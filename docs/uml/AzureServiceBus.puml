@@ -1,43 +1,36 @@
 @startuml
 
-!define RECTANGLE_COLOR #lightblue
-!define INTERFACE_COLOR #lightgreen
-!define FILE_COLOR #lightyellow
+actor User
+participant Chat.jsx
+participant "chat.socket.js"
+participant "socket.Chat.controller.js"
+participant "Azure Blob Storage"
+participant "Service Bus Queue"
 
-rectangle "Frontend" RECTANGLE_COLOR {
-  [chat.jsx]
-}
+User -> Chat.jsx: Send non-text message
+Chat.jsx -> Chat.jsx: Check message content type
+alt Message is non-text
+    Chat.jsx -> "socket.Chat.controller.js": Generate SAS URL
+    "socket.Chat.controller.js" -> "Azure Blob Storage": Generate SAS URL
+    "Azure Blob Storage" -> "socket.Chat.controller.js": Return SAS URL
+    "socket.Chat.controller.js" -> Chat.jsx: Return SAS URL
+    
+    Chat.jsx -> "Azure Blob Storage": Upload message content
+    "Azure Blob Storage" -> Chat.jsx: Return Blob URL
+    Chat.jsx -> Chat.jsx: uploadToBlob(message, sasUrl)
+    
+    Chat.jsx -> "chat.socket.js": socket.emit("sendMessages", { conversationId, message })
+    note right: message contains Blob URL
+else Message is text
+    Chat.jsx -> "chat.socket.js": socket.emit("sendMessages", { conversationId, message })
+end
 
-rectangle "Server" RECTANGLE_COLOR {
-  [chat.socket.js]
-}
+"chat.socket.js" -> "socket.Chat.controller.js": Generate Service Bus Token
+"socket.Chat.controller.js" -> "Service Bus Queue": Generate SAS Token
+"Service Bus Queue" -> "socket.Chat.controller.js": Return Service Bus Token
+"socket.Chat.controller.js" -> "chat.socket.js": Return Service Bus Token
 
-rectangle "Services" RECTANGLE_COLOR {
-  [azureBlob.service.js]
-  [azureServiceBus.service.js]
-}
-
-rectangle "Azure Cloud" RECTANGLE_COLOR {
-  [Azure Blob Storage] FILE_COLOR
-  [Azure Service Bus] FILE_COLOR
-}
-
-[chat.jsx] -down-> [chat.socket.js] : Request SAS URL
-[chat.socket.js] -down-> [azureBlob.service.js] : Call generateSASUrl(blobName)
-[azureBlob.service.js] -up-> [chat.socket.js] : Return SAS URL
-[chat.socket.js] -up-> [chat.jsx] : Provide SAS URL
-
-[chat.jsx] -down-> [Azure Blob Storage] : Upload file using SAS URL
-
-[Azure Blob Storage] -up-> [chat.jsx] : Return file URL
-[chat.jsx] -down-> [chat.socket.js] : Send file URL
-
-[chat.socket.js] -down-> [azureServiceBus.service.js] : Call sendMessageToQueue(queueName, message)
-[azureServiceBus.service.js] -down-> [Azure Service Bus] : Send message
-
-[Azure Service Bus] -up-> [azureServiceBus.service.js] : Acknowledge message
-[azureServiceBus.service.js] -up-> [chat.socket.js] : Acknowledge message
-
-[chat.socket.js] -up-> [chat.jsx] : Acknowledge message
+"chat.socket.js" -> "Service Bus Queue": Send message with token
+"Service Bus Queue" -> "chat.socket.js": Return success
 
 @enduml
