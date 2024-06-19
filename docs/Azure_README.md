@@ -2,20 +2,56 @@
 
 This documentation covers four main processes: Azure Storage - container, Azure Maps, Google Geolocation Service, Cosmos DB, and solving MongoDB connection issues related to network firewalls.
 
-## 1. Azure Blobstorage - Container
+## 1. Azure Service Bus - Queues
 
-### 1.1 Create Azure Storage Account
+### 1 Create Azure Service Bus Instance
+
+1. Open [Azure Portal](https://portal.azure.com/#home).
+2. In the search bar at the top, search for "Service Bus".
+3. Select the recommended option and click "Create Service Bus".
+4. Provide the following details:
+   - **Instance Name**: Provide a unique name for your Service Bus instance.
+   - **Location**: Choose the appropriate region.
+   - **Resource Group**: Select an existing resource group or create a new one.
+   - **Pricing Tier**: Choose a pricing tier that supports the required maximum TTL (Time to Live) for messages.
+5. Click "Review + create" and then "Create".
+
+### 2 Configure Shared Access Policies
+
+1. Go back to the [Azure Portal Home](https://portal.azure.com/#home).
+2. Open your Service Bus instance.
+3. Under **Settings** in the left sidebar, click on **Shared access policies**.
+4. Here, you can manage access rights for different entities by creating new policies or using existing ones.
+5. Select **RootManageSharedAccessKey** to get the primary and secondary keys, and the connection string.
+
+### 3 Create Queues
+
+1. In your Service Bus instance, under **Entities** in the left sidebar, click on **Queues**.
+2. Click the **+ Queue** button to create a new queue.
+3. Provide the following details for each queue:
+   - **Name**: Name of the queue.
+   - **Max Queue Size**: Set the maximum size of the queue.
+   - **Max Delivery Count**: Set the maximum delivery count.
+   - **Message TTL**: Set the time-to-live for messages.
+   - **Lock Duration**: Set the lock duration.
+   - **Enable Dead Lettering on Message Expiration**: Toggle this setting as needed.
+   - **Enable Partitioning**: Toggle this setting as needed.
+4. Click "Create".
+   
+## 2. Azure Blobstorage - Container
+
+### 1 Create Azure Storage Account
 
 1. Go to the Azure portal and log in.
 2. Create a storage account instance named **kavoappstorage** within the resource group **kavoFree**.
 
-### 1.2 Solve Firewall Issues
+### 2 Solve Firewall Issues
 
 1. To solve firewall issues, you need to add an existing virtual network or create a new virtual network.
 2. Add your public IP address for testing locally.
 3. Add the IP addresses used by GitHub Actions. In our case, the range is `213.199.183.0/24`.
 
-### 1.3 Retrieve Access Key or Connection String
+### 3 Retrieve Access Key or Connection String
 
 1. Open your storage account instance in the Azure portal.
 2. Navigate to **Security + Networking** in the sidebar on the left.
@@ -26,14 +62,14 @@ This documentation covers four main processes: Azure Storage - container, Azure 
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=kavoappstorage;AccountKey=f43ZieotGt9rxEpRHLc+F2HlDp4zCKerFSj5KUSjoGPdOFj7Xw8J36P2sKxXAUW8kblRCEddltGy+AStwjRSXQ==;EndpointSuffix=core.windows.net
 ```
 
-### 1.4 Setup the Container
+### 4 Setup the Container
 
 1. In your storage account instance, navigate to Data Storage > Containers in the sidebar on the left.
 2. Create a new container with a name of your choice, for example, azure-filearchive.
 3. After creating the container, click on it and configure the access level.
 4. Set Change access level to Container (anonymous read access for containers and blobs).
 
-### 1.5 Accessing Data
+### 5 Accessing Data
 
 - All data stored in this container will have URLs in the following format:
    ```bash

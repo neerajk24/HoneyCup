@@ -59,18 +59,41 @@ const Chat = (props) => {
         };
     }, [props.user]);
 
-    const sendMessage = () => {
-        if (message.trim() !== '') {
-            const newMessage = {
+    const sendMessage = async () => {
+        if (message.trim() !== '' || file) {
+            let newMessage = {
                 sender_id: props.user,
                 receiver_id: receiverId,
                 content: message,
-                content_type: 'text',
+                content_type: file ? 'file' : 'text', 
                 content_link: null,
                 timestamp: new Date(),
                 is_read: false,
                 is_appropriate: true,
             };
+    
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                console.log(`file chat.jsx ${file}`);
+                try {
+                    const response = await axios.post('http://localhost:3000/api/media/upload', formData, {
+                        headers: {
+                            'Content-Type': 'application/octet-stream'
+                        }
+                    });
+                    newMessage.content_link = response.data.blobUrl; // Set the file URL after upload
+                    setFile(null);
+                    console.log("File uploaded successfully. URL:", newMessage.content_link);
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                    return;
+                }
+            } else {
+                newMessage.content_link = 'no_link'; // Set to 'no_link' if no file
+            }
+    
+            console.log("New message ready to be sent:", newMessage);
             socketRef.current.emit('sendMessages', { conversationId, message: newMessage });
             setMessage('');
         }
@@ -173,24 +196,22 @@ const Chat = (props) => {
     };
 
     return (
-        <div className="container-fluid vh-100 d-flex flex-column">
+        <div className="container-fluid vh-90 d-flex flex-column">
             <h1>Receiver: {receiverId}</h1>
             {isTyping && <div className="text-muted">User is typing...</div>}
             <div className="row flex-grow-1">
                 <div className="col-8 border border-danger d-flex flex-column">
                     <div className="message-container overflow-auto" style={{ height: '600px' }}>
                         {messages.map((msg, index) => (
-                            <div key={index} className="p-2">
-                                <span className="font-weight-bold">{msg.sender_id}: </span>
-                                {msg.content_type === 'text' ? (
-                                    <span>{msg.content}</span>
-                                ) : (
-                                    <a href={msg.content} target="_blank" rel="noopener noreferrer">
-                                        {msg.content_type === 'image' ? 'Image' : 'File'}
-                                    </a>
-                                )}
-                            </div>
-                        ))}
+                        <div key={index} className="p-2">
+                            <span className="font-weight-bold">{msg.sender_id}: </span>
+                            {msg.content_type === 'file' ? (
+                                <a href={msg.content_link} target="_blank" rel="noopener noreferrer">Download File</a>
+                            ) : (
+                                <span>{msg.content}</span>
+                            )}
+                        </div>
+                    ))}
                     </div>
                 </div>
                 <div className="d-flex flex-column mt-5 col-4 border border-primary overflow-auto">

@@ -3,6 +3,7 @@
 import fs from "fs";
 import path from "path";
 import mongoose from "mongoose";
+import axios from "axios";
 import Conversation from "../models/chats.model.js";
 import { uploadFileToAzureBlob, deleteFileById } from "./azureBlob.service.js";
 import NotificationService from "./notification.service.js";
@@ -17,7 +18,12 @@ class ChatService {
     // Check if message is a file
     if (message.content_type !== "text" && message.content_link) {
       // Read the file content
-      const buffer = fs.readFileSync(message.content_link);
+      // const buffer = fs.readFileSync(message.content_link);
+      // const fileName = path.basename(message.content_link);
+      const response = await axios.get(message.content_link, {
+        responseType: "arraybuffer",
+      });
+      const buffer = Buffer.from(response.data);
       const fileName = path.basename(message.content_link);
 
       // Upload the file content
@@ -25,13 +31,15 @@ class ChatService {
 
       // Update the message content_link with the uploaded file URL
       message.content_link = uploadResult.blobUrl;
+      console.log(`chats service ${message.content_link}`);
     }
+    message.is_read = false;
 
     conversation.messages.push(message);
     await conversation.save();
 
     // Send notification
-    await NotificationService.sendUnreadMessagesNotification(conversationId);
+    // await NotificationService.sendUnreadMessagesNotification(conversationId);
 
     return conversation;
   }
@@ -110,9 +118,26 @@ class ChatService {
     if (!conversation) {
       throw new Error("Conversation not found");
     }
+
     const unreadCount = conversation.messages.filter(
-      (msg) => !msg.is_read
+      (message) => !message.is_read
     ).length;
+    return unreadCount;
+  }
+
+  async getUnreadMessagesCountForPair(userId1, userId2) {
+    const conversation = await Conversation.findOne({
+      participants: { $all: [userId1, userId2] },
+    });
+
+    if (!conversation) {
+      return 0;
+    }
+
+    const unreadCount = conversation.messages.filter(
+      (message) => !message.is_read && message.receiver_id === userId1
+    ).length;
+
     return unreadCount;
   }
 }
