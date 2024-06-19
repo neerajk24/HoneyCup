@@ -109,10 +109,11 @@ const Chat = (props) => {
 
     const uploadToBlob = async (file) => {
         try {
-            // console.log(file);
-            // const response = await axios.get(`http://localhost:3000/api/socketChat/chats/generateSastoken`);
-            // console.log(response.data.sasUrl);
-            const blobServiceClient = new BlobServiceClient('https://kavoappstorage.blob.core.windows.net/?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-06-29T18:57:46Z&st=2024-06-18T10:57:46Z&spr=https,http&sig=hjY63u4hH11B6543PGR09qlIDi6FoWNSE5KwDGvvr9o%3D');
+            console.log(file);
+            const response = await axios.get(`http://localhost:3000/api/socketChat/chats/generateSasurl`);
+            const sasUrl = response.data;
+            const blobServiceClient = new BlobServiceClient(sasUrl);
+            console.log(response.data);
             console.log("blobServiceClient created", blobServiceClient);
             const containerClient = blobServiceClient.getContainerClient("azure-filearchive");
             console.log(containerClient);
