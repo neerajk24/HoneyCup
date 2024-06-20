@@ -157,31 +157,33 @@ export const generateSasurl = async (req, res) => {
 };
 
 export const generateServiceBusToken = async () => {
-  const namespace = "Chats-service-bus"; // Service Bus instance name
+  const namespace = "Chats-service-bus.servicebus.windows.net"; // Service Bus instance name
   const keyName = "RootManageSharedAccessKey"; // key name
   const key = "3v34BGBWIDCd6d7q1FyWcUuFJtpuJIrDE+ASbKyROJQ="; // Primary key
 
-  const expiryInMinutes = 5; // Set token expiry time to 5 minutes
+  const expiryInMinutes = 60; // Set token expiry time to 5 minutes
   const startTimeInMinutes = -5; // Set start time to 5 minutes ago
   const expiry = Math.floor(Date.now() / 1000) + expiryInMinutes * 60;
   const startTime = Math.floor(Date.now() / 1000) + startTimeInMinutes * 60;
 
-  const stringToSign = encodeURIComponent(namespace) + "\n" + expiry;
+  const stringToSign = `${encodeURIComponent(
+    `https://${namespace}`
+  )}\n${expiry}`;
   const signature = createHmac("sha256", key)
     .update(stringToSign)
     .digest("base64");
 
-  // Based on ChatGPT
-  //   const token = `SharedAccessSignature sr=${encodeURIComponent(
-  //     namespace
-  //   )}&sig=${encodeURIComponent(signature)}&se=${expiry}&skn=${keyName}`;
-
-  // Based on Gemini opinion not to use ${encodeURIComponent
-  //   const token = `SharedAccessSignature sr=${namespace}&sig=${signature}&se=${expiry}&skn=${keyName}`;
-  const token = `SharedAccessSignature sr=${namespace}&sig=${signature}&se=${expiry}&skn=${keyName}&st=${startTime}`;
+  const token = `SharedAccessSignature sr=${encodeURIComponent(
+    `https://${namespace}`
+  )}&sig=${encodeURIComponent(
+    signature
+  )}&se=${expiry}&skn=${keyName}&st=${startTime}`;
 
   // Logging to check token generation
-  // console.log("Generated SAS Token - generateServiceBusToken (socket.Chat.controller.js) :", token);
+  console.log(
+    "Generated SAS Token - generateServiceBusToken (socket.Chat.controller.js) :",
+    token
+  );
 
   return token;
 };
