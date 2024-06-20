@@ -46,6 +46,18 @@ export const ChatSocket = (io) => {
           2
         )}`
       );
+
+      const queueName =
+        message.content_type === "text"
+          ? "text_message_queue"
+          : "file_message_queue";
+
+      try {
+        await sendMessageToQueue(queueName, message);
+      } catch (error) {
+        console.error("Error in sendMessageToQueue:", error);
+      }
+
       io.to(conversationId).emit("recieveMessage", message);
 
       // Convert the conversationId string to an ObjectId
@@ -65,96 +77,33 @@ export const ChatSocket = (io) => {
       }
 
       // Use of Connection string for adding message to queue
-      const queueName =
-        message.content_type === "text"
-          ? "text_message_queue"
-          : "file_message_queue";
-      try {
-        // Use the connection string for Service Bus
-        const sender = serviceBusClient.createSender(queueName);
+      // try {
 
-        // Logging to check message details
-        console.log("Message object before stringify:", message);
-        const messageToSend = {
-          body: JSON.stringify(message),
-          contentType: "application/json",
-        };
-        console.log("Message data after stringify:", messageToSend);
+      //   const sender = serviceBusClient.createSender(queueName);
 
-        // Send message to Service Bus queue
-        await sender.sendMessages(messageToSend);
-        console.log("Message sent to Service Bus queue");
+      //   console.log("Message object before stringify:", message);
+      //   const messageToSend = {
+      //     body: JSON.stringify(message),
+      //     contentType: "application/json",
+      //   };
+      //   console.log("Message data after stringify:", messageToSend);
 
-        // Close the sender
-        await sender.close();
-      } catch (error) {
-        console.error("Error sending message to Service Bus queue:", error);
-      }
+      //   await sender.sendMessages(messageToSend);
+      //   console.log("Message sent to Service Bus queue");
+
+      //   await sender.close();
+      // } catch (error) {
+      //   console.error("Error sending message to Service Bus queue:", error);
+      // }
 
       // Use the SAS token from socket.Chat.controller.js
 
-      // Define the queue URL based on message content type
-      // const queueUrl =
-      //   message.content_type === "text"
-      //     ? "https://Chats-service-bus.servicebus.windows.net/text_message_queue"
-      //     : "https://Chats-service-bus.servicebus.windows.net/file_message_queue";
+      // Call finction sendMessageToQueue(queueName, message) to add message to queue
 
       // try {
-      //   // Get SAS token for Service Bus
-      //   const sasToken = await generateServiceBusToken();
-
-      //   // Logging to check token generation
-      //   console.log("Recieved SAS Token in chat.socket.js :", sasToken);
-      //   console.log("queueUrl : ", queueUrl);
-
-      //   console.log("Message object before stringify:", message);
-      //   const messageToSend = JSON.stringify(message);
-      //   console.log("Message data after stringify:", messageToSend);
-
-      //   // Send message to Service Bus queue
-      //   const response = await axios.post(queueUrl, messageToSend, {
-      //     headers: {
-      //       Authorization: sasToken,
-      //       "Content-Type": "application/json",
-      //     },
-      //     // Include additional options for logging
-      //     transformRequest: [
-      //       (data, headers) => {
-      //         // Log the request data (including message body)
-      //         console.log("Sending message to Service Bus queue:", data);
-      //         return data;
-      //       },
-      //     ],
-      //     validateStatus: (status) => {
-      //       // Log the response status code
-      //       console.log("Status code of Service Bus response:", status);
-      //       return status >= 200 && status < 300; // Only consider successful responses (2xx)
-      //     },
-      //   });
-
-      //   console.log("Message sent to Service Bus queue:", response.data);
+      //   await sendMessageToQueue(queueName, message);
       // } catch (error) {
-      //   if (error.response) {
-      //     // The request was made, and the server responded with a status code that falls out of the range of 2xx
-      //     console.error("Error sending message to Service Bus queue:");
-      //     console.error("Status:", error.response.status);
-      //     console.error(
-      //       "Headers:",
-      //       JSON.stringify(error.response.headers, null, 2)
-      //     );
-      //     console.error("Data:", JSON.stringify(error.response.data, null, 2));
-      //   } else if (error.request) {
-      //     // The request was made but no response was received
-      //     console.error("No response received from Service Bus queue:");
-      //     console.error("Request:", error.request);
-      //   } else {
-      //     // Something happened in setting up the request that triggered an error
-      //     console.error(
-      //       "Error in setting up the request to Service Bus queue:",
-      //       error.message
-      //     );
-      //   }
-      //   console.error("Error config:", error.config);
+      //   console.error("Error in sendMessageToQueue:", error);
       // }
 
       // send the new unreadMsg to the disconnected User
@@ -199,4 +148,27 @@ export const ChatSocket = (io) => {
       console.log(socket.id + " disconnected");
     });
   });
+};
+
+export const sendMessageToQueue = async (queueName, message) => {
+  const sasToken = await generateServiceBusToken();
+  const namespace = "Chats-service-bus.servicebus.windows.net";
+
+  const url = `https://${namespace}/${queueName}/messages?timeout=60&api-version=2017-04`;
+  const headers = {
+    Authorization: sasToken,
+    "Content-Type": "application/json",
+  };
+  console.log("Headers:", headers);
+
+  try {
+    console.log("Sending message to Service Bus queue:", message);
+    console.log("SAS token recived by sendMessageToQueue", sasToken);
+    console.log("Headers:", headers);
+
+    const response = await axios.post(url, { body: message }, { headers });
+    console.log("Message sent to Service Bus queue", response.data);
+  } catch (error) {
+    console.error("Error sending message to Service Bus queue:", error);
+  }
 };
